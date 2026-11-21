@@ -74,27 +74,27 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* 1. Product Management */}
               <button
                 onClick={() => onTabChange('products')}
-                className={`px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-2 border ${
+                className={`px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border ${
                   activeTab === 'products'
                     ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800'
-                    : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                    : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <Package className="w-4 h-4 text-brand-600 dark:text-brand-400" />
-                <span>1. Products</span>
+                <span>1. Products (Saman)</span>
               </button>
 
               {/* 2. Expiry Management */}
               <button
                 onClick={() => onTabChange('expiry')}
-                className={`relative px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-2 border ${
+                className={`relative px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border ${
                   activeTab === 'expiry'
                     ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800'
                     : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <Hourglass className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                <span>2. Expiry Control</span>
+                <span>2. Expiry Control (Kharab Mal)</span>
                 {totalExpiryBadge > 0 && (
                   <span
                     className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
@@ -111,14 +111,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* 3. Inventory Management */}
               <button
                 onClick={() => onTabChange('inventory')}
-                className={`relative px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-2 border ${
+                className={`relative px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border ${
                   activeTab === 'inventory'
                     ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800'
                     : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <Boxes className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span>3. Inventory</span>
+                <span>3. Stock (Bacha Mal)</span>
                 {lowStockCount > 0 && (
                   <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500 text-white">
                     {lowStockCount}
@@ -129,14 +129,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* 4. Business Analytics */}
               <button
                 onClick={() => onTabChange('analytics')}
-                className={`px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-2 border ${
+                className={`px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border ${
                   activeTab === 'analytics'
                     ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800'
                     : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>4. Analytics</span>
+                <span>4. Profit (Hisab Kitab)</span>
               </button>
             </nav>
 
@@ -146,9 +146,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onOpenPos}
                 className="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-md text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 btn-3d-brand"
+                title="Open POS Register / Billing Counter (Space or F2)"
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span className="hidden sm:inline">Register / Sale</span>
+                <span className="hidden sm:inline">Billing / Galla</span>
+                <span className="hidden lg:inline text-[10px] opacity-80 bg-brand-700 px-1 py-0.5 rounded">Space</span>
               </button>
 
               {/* Night Mode Toggle */}
@@ -193,7 +195,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Package className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Products</span>
+            <span className="text-[10px] mt-0.5">Saman</span>
           </button>
 
           {/* 2. Expiry */}
@@ -219,11 +221,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onOpenPos}
             className="flex flex-col items-center justify-center -mt-3 py-1"
           >
-            <div className="w-10 h-10 rounded-lg bg-brand-600 text-white flex items-center justify-center btn-3d-brand">
+            <div className="w-10 h-10 rounded-lg bg-brand-600 text-white flex items-center justify-center btn-3d-brand shadow-md">
               <ShoppingBag className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-bold text-brand-600 dark:text-brand-400 mt-0.5">
-              Register
+              Galla / Bill
             </span>
           </button>
 
@@ -255,7 +257,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <TrendingUp className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Profit</span>
+            <span className="text-[10px] mt-0.5">Hisab</span>
           </button>
         </div>
       </nav>

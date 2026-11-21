@@ -18,6 +18,7 @@ import { InventoryDashboard } from './components/inventory/InventoryDashboard';
 import { AnalyticsDashboard } from './components/analytics/AnalyticsDashboard';
 import { QuickSaleModal } from './components/pos/QuickSaleModal';
 import { SettingsModal } from './components/settings/SettingsModal';
+import { StoreSafetyBanner } from './components/common/StoreSafetyBanner';
 import { ToastContainer, ToastMessage } from './components/common/Toast';
 
 export const App: React.FC = () => {
@@ -43,6 +44,28 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isPosOpen, setIsPosOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [autoAttemptExpiredProductId, setAutoAttemptExpiredProductId] = useState<string | null>(null);
+
+  // Keyboard shortcut: Space or F2 opens POS register when not typing in an input
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+      if (e.key === ' ' || e.key === 'F2') {
+        e.preventDefault();
+        setIsPosOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const addToast = (title: string, message?: string, type: 'success' | 'error' | 'info' = 'success') => {
     const newToast: ToastMessage = {
@@ -136,6 +159,43 @@ export const App: React.FC = () => {
     }, 0);
     return freshStock <= p.minStockThreshold;
   }).length;
+
+  const freshCount = batches.filter((b) => {
+    if (b.quantity <= 0 || b.status === 'disposed') return false;
+    const exp = db.parseLocalDate(b.expiryDate);
+    return Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) > (settings.urgentExpiryDays || 7);
+  }).length;
+
+  const atRiskValue = batches.filter((b) => {
+    if (b.quantity <= 0 || b.status === 'disposed') return false;
+    const exp = db.parseLocalDate(b.expiryDate);
+    const diff = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diff > 0 && diff <= (settings.urgentExpiryDays || 7);
+  }).reduce((acc, b) => {
+    const p = products.find((prod) => prod.id === b.productId);
+    return acc + (p ? p.sellingPrice * b.quantity : 0);
+  }, 0);
+
+  const handleTriggerDemoScenario = (scenario: 'expired_block' | 'barcode_test' | 'clearance') => {
+    if (scenario === 'expired_block') {
+      const expBatch = batches.find((b) => {
+        if (b.quantity <= 0 || b.status === 'disposed') return false;
+        const exp = db.parseLocalDate(b.expiryDate);
+        return Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) <= 0;
+      });
+      const targetProdId = expBatch ? expBatch.productId : (products[1]?.id || products[0]?.id);
+      setAutoAttemptExpiredProductId(targetProdId);
+      setIsPosOpen(true);
+      addToast('Safety Alarm Test', 'Attempting to ring up expired item. Watch safety lock trigger!', 'info');
+    } else if (scenario === 'barcode_test') {
+      setAutoAttemptExpiredProductId(null);
+      setIsPosOpen(true);
+      addToast('Barcode Test', 'Scan or click staple products for 1-second bill generation!', 'info');
+    } else if (scenario === 'clearance') {
+      setActiveTab('expiry');
+      addToast('Clearance Triage', 'Switched to Smart Expiry: review batches expiring soon', 'info');
+    }
+  };
 
   // DB Handlers with Interactive Feedback Toasts
   const handleAddProduct = async (productData: {
@@ -285,6 +345,17 @@ export const App: React.FC = () => {
 
       {/* Main Responsive Content Shell */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
+        {/* Store Customer Safety Banner & Hackathon Demo Presets */}
+        <StoreSafetyBanner
+          expiredCount={expiredCount}
+          urgentCount={urgentExpiryCount}
+          freshCount={freshCount}
+          atRiskValue={atRiskValue}
+          currency={settings.currency}
+          onOpenExpiryTab={() => setActiveTab('expiry')}
+          onTriggerDemoScenario={handleTriggerDemoScenario}
+        />
+
         {activeTab === 'products' && (
           <ProductList
             products={products}
@@ -332,11 +403,15 @@ export const App: React.FC = () => {
       {isPosOpen && (
         <QuickSaleModal
           isOpen={isPosOpen}
-          onClose={() => setIsPosOpen(false)}
+          onClose={() => {
+            setIsPosOpen(false);
+            setAutoAttemptExpiredProductId(null);
+          }}
           products={products}
           batches={batches}
           currency={settings.currency}
           onProcessSale={handleProcessSale}
+          autoAttemptExpiredProductId={autoAttemptExpiredProductId}
         />
       )}
 

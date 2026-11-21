@@ -207,16 +207,16 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Total SKUs */}
+        {/* Total Stock */}
         <div className="p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
           <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-            Total Inventory
+            Total Stock (Bacha Mal)
           </span>
           <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-1.5">
             {totalUnits} <span className="text-xs font-normal text-slate-500">units</span>
           </div>
           <div className="text-xs text-slate-500 mt-1">
-            Across {totalSkus} unique product SKUs
+            Across {totalSkus} unique products
           </div>
         </div>
 
@@ -231,7 +231,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
-              Low Stock Warnings
+              Kam Stock (Order Now)
             </span>
             <AlertTriangle className="w-4 h-4 text-amber-500" />
           </div>
@@ -246,26 +246,26 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         {/* Total Cost Valuation */}
         <div className="p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
           <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-            Stock Value (Cost)
+            Khareed Laagat (Cost Value)
           </span>
           <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-1.5">
             {currency}{totalCostValuation.toFixed(0)}
           </div>
           <div className="text-xs text-slate-500 mt-1">
-            Capital invested in current shelf stock
+            Total money invested in stock
           </div>
         </div>
 
         {/* Retail Valuation */}
         <div className="p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
           <span className="text-[11px] font-bold text-brand-700 dark:text-brand-400 uppercase tracking-wider block">
-            Retail Value (Selling)
+            Bikri Muly (Selling Value)
           </span>
           <div className="text-xl sm:text-2xl font-extrabold text-brand-600 dark:text-brand-400 mt-1.5">
             {currency}{totalRetailValuation.toFixed(0)}
           </div>
           <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-            Est. Margin: +{currency}{(totalRetailValuation - totalCostValuation).toFixed(0)}
+            Expected Munafa: +{currency}{(totalRetailValuation - totalCostValuation).toFixed(0)}
           </div>
         </div>
       </div>
@@ -285,7 +285,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
               }`}
             >
               <Package className="w-4 h-4" />
-              <span>All Stock Levels</span>
+              <span>All Stock (Dukan Ka Mal)</span>
             </button>
 
             <button
@@ -309,7 +309,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
               }`}
             >
               <History className="w-4 h-4" />
-              <span>Stock History Log</span>
+              <span>Stock History (Aana/Jana)</span>
             </button>
           </div>
 

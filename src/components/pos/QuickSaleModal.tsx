@@ -23,6 +23,7 @@ interface QuickSaleModalProps {
   products: Product[];
   batches: ProductBatch[];
   currency: string;
+  autoAttemptExpiredProductId?: string | null;
   onProcessSale: (
     cart: { productId: string; quantity: number }[],
     paymentMethod: 'cash' | 'upi' | 'card' | 'credit',
@@ -36,6 +37,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
   products,
   batches,
   currency,
+  autoAttemptExpiredProductId,
   onProcessSale,
 }) => {
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
@@ -96,7 +98,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
 
     if (status.isCompletelyExpired) {
       sound.playAlertBuzz();
-      setError(`Cannot add "${product.name}": All available stock is expired and quarantined.`);
+      setError(`CUSTOMER SAFETY LOCK: All stock for "${product.name}" is EXPIRED and quarantined. System will not allow billing expired goods to customers!`);
       return;
     }
 
@@ -113,7 +115,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
         if (existing.quantity >= status.saleableStock) {
-          setError(`Cannot add more: Max available fresh stock for "${product.name}" is ${status.saleableStock}`);
+          setError(`Max available fresh stock for "${product.name}" is ${status.saleableStock}`);
           return prev;
         }
         return prev.map((item) =>
@@ -123,6 +125,16 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
       return [...prev, { product, quantity: 1 }];
     });
   };
+
+  // Auto trigger expired attempt for live hackathon demonstration if requested
+  React.useEffect(() => {
+    if (autoAttemptExpiredProductId) {
+      const expiredProd = products.find((p) => p.id === autoAttemptExpiredProductId);
+      if (expiredProd) {
+        addToCart(expiredProd);
+      }
+    }
+  }, [autoAttemptExpiredProductId]);
 
   const updateQuantity = (productId: string, delta: number) => {
     const status = getProductStockStatus(productId);
@@ -260,59 +272,74 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
 
           {/* Main Body */}
           {completedSale ? (
-            /* COMPLETED RECEIPT VIEW */
+            /* COMPLETED RECEIPT VIEW WITH AUTHENTIC THERMAL PAPER SLIP */
             <div className="p-6 overflow-y-auto flex-1 flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 rounded-full flex items-center justify-center">
                 <CheckCircle className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
-                Sale Recorded Successfully
-              </h3>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                  Payment Received • Bill Ready
+                </h3>
+                <p className="text-xs text-slate-500">Stock deducted automatically via oldest batch (FEFO).</p>
+              </div>
 
-              {/* Printable Receipt Card */}
-              <div id="printable-receipt" className="w-full max-w-sm bg-slate-50 dark:bg-slate-900/90 p-4 rounded-md border border-slate-300 dark:border-slate-700 font-mono text-xs text-left space-y-2.5 card-3d">
-                <div className="text-center border-b border-dashed border-slate-300 dark:border-slate-600 pb-2">
-                  <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                    RETAIL'S GM RECEIPT
+              {/* Authentic Perforated Thermal Receipt Slip */}
+              <div id="printable-receipt" className="receipt-paper w-full max-w-[300px] p-4 font-mono text-xs text-left space-y-2.5">
+                <div className="text-center border-b border-dashed border-slate-400 pb-2">
+                  <h4 className="font-extrabold text-slate-900 text-sm tracking-wider">
+                    RETAIL'S GM STORE
                   </h4>
-                  <p className="text-slate-500 text-[10px]">Receipt #{completedSale.receiptNumber}</p>
-                  <p className="text-slate-500 text-[10px]">{new Date(completedSale.timestamp).toLocaleString()}</p>
+                  <p className="text-slate-600 text-[10px]">Tax & Retail Cash Memo</p>
+                  <p className="text-slate-700 text-[10px] mt-1 font-semibold">Bill #{completedSale.receiptNumber}</p>
+                  <p className="text-slate-500 text-[10px]">{new Date(completedSale.timestamp).toLocaleDateString()} {new Date(completedSale.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                   {completedSale.customerName && (
-                    <p className="text-slate-500 text-[10px]">Customer: {completedSale.customerName}</p>
+                    <p className="text-slate-700 text-[10px] font-medium">Customer: {completedSale.customerName}</p>
                   )}
                 </div>
 
-                <div className="space-y-1.5 divide-y divide-slate-200 dark:divide-slate-700">
+                <div className="space-y-1.5 divide-y divide-dashed divide-slate-300">
                   {completedSale.items.map((item, idx) => (
                     <div key={idx} className="pt-1.5 flex justify-between">
-                      <div>
-                        <span className="font-semibold text-slate-800 dark:text-slate-200 block">
+                      <div className="pr-2">
+                        <span className="font-bold text-slate-900 block leading-tight">
                           {item.productName}
                         </span>
-                        <span className="text-[10px] text-slate-400">
-                          {item.quantity} x {currency}{item.unitPrice} (Batch: {item.batchNumber})
+                        <span className="text-[10px] text-slate-500">
+                          {item.quantity} x {currency}{item.unitPrice} <span className="opacity-75">(Batch: {item.batchNumber})</span>
                         </span>
                       </div>
-                      <span className="font-bold text-slate-800 dark:text-slate-200">
+                      <span className="font-extrabold text-slate-900 shrink-0">
                         {currency}{item.totalPrice}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="border-t border-dashed border-slate-300 dark:border-slate-600 pt-2 space-y-1">
-                  <div className="flex justify-between font-bold text-sm text-slate-900 dark:text-slate-100">
-                    <span>Total Paid:</span>
-                    <span>{currency}{completedSale.totalAmount}</span>
+                <div className="border-t-2 border-dashed border-slate-800 pt-2 space-y-1">
+                  <div className="flex justify-between font-extrabold text-sm text-slate-900">
+                    <span>GRAND TOTAL:</span>
+                    <span>{currency}{completedSale.totalAmount.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-[11px] text-slate-500">
-                    <span>Payment Method:</span>
-                    <span className="uppercase">{completedSale.paymentMethod}</span>
+                  <div className="flex justify-between text-[10px] text-slate-600">
+                    <span>Payment Mode:</span>
+                    <span className="font-bold uppercase tracking-wider">{completedSale.paymentMethod === 'credit' ? 'KHATA (CREDIT)' : completedSale.paymentMethod}</span>
                   </div>
                 </div>
 
-                <div className="text-center text-[10px] text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-700">
-                  Thank you for shopping with us!
+                {/* Simulated UPI QR Code Stamp */}
+                <div className="border-t border-dashed border-slate-300 pt-2 flex items-center justify-between gap-2">
+                  <div className="w-10 h-10 bg-slate-100 border border-slate-300 rounded flex items-center justify-center text-[8px] font-bold text-slate-500 text-center leading-none">
+                    UPI<br/>QR
+                  </div>
+                  <div className="text-[9px] text-slate-500 text-right leading-tight">
+                    <span>Scan to verify digital receipt</span><br/>
+                    <span className="font-bold text-slate-800">Fresh Stock Guaranteed</span>
+                  </div>
+                </div>
+
+                <div className="text-center text-[10px] text-slate-600 pt-1 border-t border-dashed border-slate-300">
+                  Thank You! Visit Again.
                 </div>
               </div>
 
@@ -320,37 +347,37 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
               <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
                 <button
                   onClick={() => window.print()}
-                  className="px-3.5 py-2 border border-slate-300 dark:border-slate-600 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-1.5 transition-all active:scale-95"
+                  className="px-3.5 py-1.5 border border-slate-300 dark:border-slate-600 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-1.5 transition-all btn-3d-secondary"
                 >
                   <Printer className="w-4 h-4" />
-                  <span>Print Slip</span>
+                  <span>Print Thermal Slip</span>
                 </button>
                 <button
                   onClick={handleShareWhatsApp}
-                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all btn-3d-brand"
+                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all btn-3d-brand"
                 >
-                  <span>WhatsApp Bill</span>
+                  <span>WhatsApp Receipt</span>
                 </button>
                 <button
                   onClick={handleCopyBill}
-                  className="px-3.5 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all"
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all"
                 >
-                  <span>Copy Text</span>
+                  <span>Copy SMS Text</span>
                 </button>
                 <button
                   onClick={handleResetAndNewSale}
-                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold transition-all btn-3d-brand"
+                  className="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-md text-xs font-semibold transition-all btn-3d-brand"
                 >
-                  Next Sale &rarr;
+                  Next Customer &rarr;
                 </button>
               </div>
             </div>
           ) : (
             /* CHECKOUT SPLIT VIEW */
-            <div className="p-6 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="p-5 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-12 gap-5">
               
               {/* Left Column: Product Search & Quick Add */}
-              <div className="md:col-span-7 space-y-4">
+              <div className="md:col-span-7 space-y-3">
                 {/* Search / Barcode row */}
                 <div className="flex gap-2">
                   <div className="relative flex-1">
@@ -359,26 +386,54 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Type name, brand, or scan barcode..."
-                      className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      placeholder="Type product name, brand, or scan barcode..."
+                      className="w-full pl-9 pr-3 py-2 text-xs rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-500"
                     />
                   </div>
                   <button
                     onClick={() => setShowScanner(true)}
-                    className="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold transition-colors flex items-center gap-1 shadow-sm shrink-0"
+                    className="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md text-xs font-semibold transition-colors flex items-center gap-1.5 btn-3d-brand shrink-0"
                   >
                     <Camera className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Camera Scanner</span>
+                    <span>Barcode Scan</span>
                   </button>
                 </div>
 
-                {/* Available Products Grid for one-click add */}
-                <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50/60 dark:bg-slate-900/40">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
-                    Quick Add to Cart (Click to Add)
+                {/* Quick Speed-Dial Staples (One-Tap Add for high volume items) */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Fast Billing Shortcuts (Tap to Add)
                   </span>
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                    {products.slice(0, 5).map((p) => {
+                      const { isCompletelyExpired } = getProductStockStatus(p.id);
+                      return (
+                        <button
+                          key={`staple-${p.id}`}
+                          onClick={() => addToCart(p)}
+                          className={`px-2.5 py-1.5 rounded border text-[11px] font-semibold whitespace-nowrap transition-all shrink-0 ${
+                            isCompletelyExpired 
+                              ? 'bg-red-50 text-red-700 border-red-300 dark:bg-red-950/40 dark:border-red-800' 
+                              : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-brand-500'
+                          }`}
+                        >
+                          {p.name.split(' ')[0]} ({currency}{p.sellingPrice})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
+                {/* Available Products Grid */}
+                <div className="border border-slate-200 dark:border-slate-700 rounded-md p-3 bg-slate-50/60 dark:bg-slate-900/40">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Store Shelf Products
+                    </span>
+                    <span className="text-[10px] text-slate-400">Click to ring up</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1">
                     {searchResults.map((p) => {
                       const { saleableStock, isCompletelyExpired, hasUrgentBatch } = getProductStockStatus(p.id);
 
@@ -386,9 +441,9 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                         <div
                           key={p.id}
                           onClick={() => addToCart(p)}
-                          className={`p-2.5 rounded-xl border transition-all flex flex-col justify-between ${
+                          className={`p-2.5 rounded-md border transition-all flex flex-col justify-between ${
                             isCompletelyExpired
-                              ? 'bg-red-50/40 dark:bg-red-950/20 border-red-300 opacity-60 cursor-not-allowed'
+                              ? 'bg-red-50/70 dark:bg-red-950/30 border-red-300 cursor-not-allowed'
                               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-brand-500 hover:shadow-sm cursor-pointer'
                           }`}
                         >
@@ -398,12 +453,12 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                                 {p.name}
                               </h4>
                               {isCompletelyExpired ? (
-                                <span className="text-[9px] px-1 py-0.2 bg-red-100 text-red-700 rounded font-bold">
+                                <span className="text-[9px] px-1 py-0.2 bg-red-600 text-white rounded font-bold">
                                   EXPIRED
                                 </span>
                               ) : hasUrgentBatch ? (
-                                <span className="text-[9px] px-1 py-0.2 bg-orange-100 text-orange-700 rounded font-bold">
-                                  &le;7d
+                                <span className="text-[9px] px-1 py-0.2 bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300 rounded font-bold">
+                                  &le;7d Expiry
                                 </span>
                               ) : null}
                             </div>
@@ -412,7 +467,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
 
                           <div className="mt-2 flex items-center justify-between text-xs">
                             <span className="text-[10px] text-slate-500">
-                              Fresh: {saleableStock} {p.unit}
+                              Safe Stock: {saleableStock} {p.unit}
                             </span>
                             <span className="font-bold text-brand-600 dark:text-brand-400">
                               {currency}{p.sellingPrice}
@@ -431,29 +486,29 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                 </div>
               </div>
 
-              {/* Right Column: Active Cart & Ring Up */}
-              <div className="md:col-span-5 flex flex-col justify-between bg-slate-50 dark:bg-slate-900/60 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+              {/* Right Column: Customer Bill Tape */}
+              <div className="md:col-span-5 flex flex-col justify-between bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-md border border-slate-200 dark:border-slate-700">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
-                    <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                      Customer Cart ({cart.reduce((a, b) => a + b.quantity, 0)} items)
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                      Current Customer Bill ({cart.reduce((a, b) => a + b.quantity, 0)} items)
                     </h3>
                     {cart.length > 0 && (
                       <button
                         onClick={() => setCart([])}
-                        className="text-[11px] text-red-500 hover:text-red-700"
+                        className="text-[11px] text-red-600 hover:text-red-800 font-semibold"
                       >
-                        Clear Cart
+                        Empty
                       </button>
                     )}
                   </div>
 
                   {/* Cart items scrollable list */}
-                  <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                     {cart.map((item) => (
                       <div
                         key={item.product.id}
-                        className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2"
+                        className="p-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2"
                       >
                         <div className="flex-1 min-w-0">
                           <h4 className="font-semibold text-xs text-slate-900 dark:text-slate-100 truncate">
@@ -483,7 +538,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                           </button>
                         </div>
 
-                        <span className="font-bold text-xs text-brand-600 dark:text-brand-400 w-14 text-right">
+                        <span className="font-bold text-xs text-brand-600 dark:text-brand-400 w-12 text-right">
                           {currency}{(item.product.sellingPrice * item.quantity).toFixed(0)}
                         </span>
 
@@ -497,51 +552,56 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                     ))}
 
                     {cart.length === 0 && (
-                      <div className="text-center py-10 text-slate-400 text-xs">
-                        Cart is empty. Select products on the left or scan barcodes.
+                      <div className="text-center py-8 text-slate-400 text-xs">
+                        No items added yet. Click a product on the left or scan barcode.
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Checkout Section */}
-                <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3 mt-4">
+                {/* Payment Section */}
+                <div className="pt-2.5 border-t border-slate-200 dark:border-slate-700 space-y-2.5 mt-3">
                   <div>
                     <input
                       type="text"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder="Customer Name / Mobile (Optional)"
-                      className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700"
+                      className="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700"
                     />
                   </div>
 
-                  {/* Payment Methods */}
-                  <div className="grid grid-cols-4 gap-1.5 text-[11px]">
-                    {[
-                      { id: 'cash', label: 'Cash' },
-                      { id: 'upi', label: 'UPI/QR' },
-                      { id: 'card', label: 'Card' },
-                      { id: 'credit', label: 'Khata' },
-                    ].map((p) => (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => setPaymentMethod(p.id as typeof paymentMethod)}
-                        className={`py-1.5 rounded-lg font-semibold border transition-colors ${
-                          paymentMethod === p.id
-                            ? 'bg-brand-600 text-white border-brand-600'
-                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                        }`}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
+                  {/* Payment Method Selector */}
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1">
+                      Payment Mode
+                    </span>
+                    <div className="grid grid-cols-4 gap-1.5 text-xs font-semibold">
+                      {[
+                        { id: 'cash', label: 'Cash (Nagad)' },
+                        { id: 'upi', label: 'UPI / QR' },
+                        { id: 'card', label: 'Card' },
+                        { id: 'credit', label: 'Khata (Udhar)' },
+                      ].map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => setPaymentMethod(p.id as typeof paymentMethod)}
+                          className={`py-1.5 rounded border text-[11px] transition-colors ${
+                            paymentMethod === p.id
+                              ? 'bg-brand-600 text-white border-brand-600 shadow-sm'
+                              : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                          }`}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Total & Ring up button */}
-                  <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                    <span className="text-xs font-semibold text-slate-500">Total Payable:</span>
+                  {/* Total & Charge button */}
+                  <div className="p-2.5 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                    <span className="text-xs font-semibold text-slate-500">Total Bill:</span>
                     <span className="text-xl font-extrabold text-brand-600 dark:text-brand-400">
                       {currency}{totalAmount.toFixed(2)}
                     </span>
@@ -550,9 +610,9 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                   <button
                     onClick={handleCheckout}
                     disabled={cart.length === 0 || isSubmitting}
-                    className="w-full py-3 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white rounded-xl text-sm font-bold transition-all btn-3d-brand"
+                    className="w-full py-2.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white rounded-md text-xs sm:text-sm font-bold transition-all btn-3d-brand"
                   >
-                    {isSubmitting ? 'Recording Sale...' : `Charge ${currency}${totalAmount.toFixed(2)}`}
+                    {isSubmitting ? 'Recording Bill...' : `Confirm & Charge ${currency}${totalAmount.toFixed(2)}`}
                   </button>
                 </div>
               </div>

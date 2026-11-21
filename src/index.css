@@ -69,6 +69,20 @@
     @apply inline-flex items-center font-bold;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
   }
+
+  /* Physical Perforated Thermal Paper Receipt */
+  .receipt-paper {
+    background: #ffffff;
+    color: #0f172a;
+    position: relative;
+    box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-left: 1px dashed #cbd5e1;
+    border-right: 1px dashed #cbd5e1;
+  }
+  .dark .receipt-paper {
+    background: #ffffff;
+    color: #0f172a;
+  }
 }
 
 /* Custom scrollbars */

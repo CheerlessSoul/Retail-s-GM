@@ -205,7 +205,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-2 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            Sales & Profit Ledger
+            Sales & Profit Ledger (Bikri & Munafa)
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Recorded revenue, cost of goods, gross profit margins, and inventory performance.
@@ -227,10 +227,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           {/* Time Filter Tabs */}
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-md text-xs border border-slate-200 dark:border-slate-700">
             {[
-              { id: 'today', label: 'Today' },
+              { id: 'today', label: 'Today (Aaj)' },
               { id: '7days', label: '7 Days' },
-              { id: 'month', label: 'This Month' },
-              { id: 'all', label: 'All Records' },
+              { id: 'month', label: 'This Month (Mahina)' },
+              { id: 'all', label: 'All Records (Sabhi)' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -255,7 +255,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/80">
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Revenue & Net Earnings
+                Total Bikri (Total Sales)
               </span>
               <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">
                 {currency}{totalSalesRevenue.toFixed(2)}
@@ -263,7 +263,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </div>
             <div className="text-right">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                Gross Margin
+                Munafa Dar (Margin %)
               </span>
               <div className="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
                 {profitMarginPercent}%
@@ -273,14 +273,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
           <div className="grid grid-cols-2 gap-4 pt-3 text-xs">
             <div className="p-2.5 rounded bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
-              <div className="text-slate-500 dark:text-slate-400 font-medium">Estimated Gross Profit</div>
+              <div className="text-slate-500 dark:text-slate-400 font-medium">Net Munafa (Gross Profit)</div>
               <div className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
                 +{currency}{totalEstimatedProfit.toFixed(2)}
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Sales minus product cost</div>
+              <div className="text-[10px] text-slate-400 mt-0.5">Sales minus wholesale cost</div>
             </div>
             <div className="p-2.5 rounded bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
-              <div className="text-slate-500 dark:text-slate-400 font-medium">Cost of Goods Sold (COGS)</div>
+              <div className="text-slate-500 dark:text-slate-400 font-medium">Khareed Laagat (COGS)</div>
               <div className="text-base sm:text-lg font-bold text-slate-700 dark:text-slate-300 mt-0.5">
                 {currency}{totalCostExpenses.toFixed(2)}
               </div>
@@ -293,7 +293,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 sm:p-5 card-3d flex flex-col justify-between">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Transaction Volume
+              Total Bills (Galla Count)
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">
               {totalOrders} <span className="text-xs font-normal text-slate-500">receipts</span>
@@ -301,7 +301,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           </div>
 
           <div className="pt-3 border-t border-slate-100 dark:border-slate-700/80 mt-3">
-            <div className="text-xs text-slate-500 dark:text-slate-400">Average Basket Size</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400">Average Bill Size</div>
             <div className="text-lg font-bold text-brand-600 dark:text-brand-400 mt-0.5">
               {currency}{avgOrderValue.toFixed(2)}
             </div>
@@ -487,7 +487,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-brand-600 dark:text-brand-400" />
             <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-              Top-Selling Products
+              Top-Selling Products (Sabse Jyada Bikne Wala Saman)
             </h3>
           </div>
           <span className="text-xs text-slate-500">Sorted by volume sold</span>
@@ -498,11 +498,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
               <tr>
                 <th className="px-3.5 py-2.5">Rank</th>
-                <th className="px-3.5 py-2.5">Product Name</th>
-                <th className="px-3.5 py-2.5">Units Sold</th>
-                <th className="px-3.5 py-2.5">Total Revenue</th>
-                <th className="px-3.5 py-2.5">Estimated Profit</th>
-                <th className="px-3.5 py-2.5">Margin</th>
+                <th className="px-3.5 py-2.5">Product Name (Saman)</th>
+                <th className="px-3.5 py-2.5">Units Sold (Bikri)</th>
+                <th className="px-3.5 py-2.5">Total Revenue (Kamai)</th>
+                <th className="px-3.5 py-2.5">Estimated Profit (Munafa)</th>
+                <th className="px-3.5 py-2.5">Margin (%)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">

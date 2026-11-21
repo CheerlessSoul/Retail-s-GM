@@ -97,29 +97,79 @@ export const ProductList: React.FC<ProductListProps> = ({
 
     if (diffDays <= 0) {
       return (
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300">
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300">
           Expired
         </span>
       );
     }
     if (diffDays <= 7) {
       return (
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300">
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300">
           {diffDays}d left
         </span>
       );
     }
     if (diffDays <= 30) {
       return (
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
           {diffDays}d left
         </span>
       );
     }
     return (
-      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+      <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
         Safe
       </span>
+    );
+  };
+
+  const getShelfLifeBar = (expStr?: string) => {
+    if (!expStr) return null;
+    const parts = expStr.split(/[-/]/).map(Number);
+    const exp = parts.length === 3 && parts[0] > 1900 ? new Date(parts[0], parts[1] - 1, parts[2]) : new Date(expStr);
+    exp.setHours(0, 0, 0, 0);
+    const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 0) {
+      return (
+        <div className="mt-2.5 pt-2 border-t border-red-100 dark:border-red-900/40 space-y-1">
+          <div className="flex justify-between text-[10px] font-bold text-red-600 dark:text-red-400">
+            <span>EXPIRED (DO NOT SELL)</span>
+            <span>Quarantined</span>
+          </div>
+          <div className="w-full bg-red-200 dark:bg-red-950/80 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-red-600 h-full w-full animate-pulse" />
+          </div>
+        </div>
+      );
+    }
+
+    if (diffDays <= 7) {
+      const pct = Math.max(15, Math.min(100, Math.round((diffDays / 30) * 100)));
+      return (
+        <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 space-y-1">
+          <div className="flex justify-between text-[10px] font-semibold text-orange-600 dark:text-orange-400">
+            <span>Sell Soon: {diffDays} days left</span>
+            <span className="text-[9px] bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300 px-1 rounded font-bold">Offer</span>
+          </div>
+          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-orange-500 h-full rounded-full" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      );
+    }
+
+    const pct = Math.min(100, Math.max(25, Math.round((diffDays / 90) * 100)));
+    return (
+      <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 space-y-1">
+        <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+          <span>Fresh Shelf Life ({diffDays}d)</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">Good</span>
+        </div>
+        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+          <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${pct}%` }} />
+        </div>
+      </div>
     );
   };
 
@@ -246,25 +296,28 @@ export const ProductList: React.FC<ProductListProps> = ({
                     {getExpiryBadge(earliest?.expiryDate)}
                   </div>
 
-                  <h3 className="font-semibold text-sm text-slate-900 dark:text-slate-100 line-clamp-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+                  <h3 className="font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 line-clamp-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                     {product.name}
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     {product.brand} {product.barcode ? `• #${product.barcode.slice(-5)}` : ''}
                   </p>
+
+                  {/* Visual Shelf Life Remaining Bar */}
+                  {getShelfLifeBar(earliest?.expiryDate)}
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
                   <div>
-                    <span className="text-[11px] text-slate-400 block">Stock</span>
+                    <span className="text-[10px] text-slate-400 block">Stock (Bacha Mal)</span>
                     <span className={`font-bold ${isLowStock ? 'text-amber-600 dark:text-amber-400' : 'text-slate-800 dark:text-slate-200'}`}>
                       {product.currentStock} {product.unit}
                     </span>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-[11px] text-slate-400 block">Price</span>
-                    <span className="font-bold text-sm text-brand-600 dark:text-brand-400">
+                    <span className="text-[10px] text-slate-400 block">Selling Price (Bikri)</span>
+                    <span className="font-bold text-xs sm:text-sm text-brand-600 dark:text-brand-400">
                       {currency}{product.sellingPrice.toFixed(2)}
                     </span>
                   </div>
@@ -280,12 +333,12 @@ export const ProductList: React.FC<ProductListProps> = ({
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-3.5 py-2.5">Product Name</th>
+                  <th className="px-3.5 py-2.5">Product Name (Saman)</th>
                   <th className="px-3.5 py-2.5">Category</th>
                   <th className="px-3.5 py-2.5">Barcode</th>
-                  <th className="px-3.5 py-2.5">Stock</th>
-                  <th className="px-3.5 py-2.5">Cost</th>
-                  <th className="px-3.5 py-2.5">Selling Price</th>
+                  <th className="px-3.5 py-2.5">Stock (Bacha Mal)</th>
+                  <th className="px-3.5 py-2.5">Cost (Khareed)</th>
+                  <th className="px-3.5 py-2.5">Selling Price (Bikri)</th>
                   <th className="px-3.5 py-2.5">Next Expiry</th>
                   <th className="px-3.5 py-2.5 text-right">Action</th>
                 </tr>
