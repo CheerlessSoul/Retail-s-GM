@@ -13,6 +13,7 @@ import type {
 } from './types';
 import { Navbar } from './components/layout/Navbar';
 import { ProductList } from './components/products/ProductList';
+import { AddProductModal } from './components/products/AddProductModal';
 import { ExpiryDashboard } from './components/expiry/ExpiryDashboard';
 import { InventoryDashboard } from './components/inventory/InventoryDashboard';
 import { AnalyticsDashboard } from './components/analytics/AnalyticsDashboard';
@@ -50,6 +51,7 @@ export const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSetupModalOpen, setIsSetupModalOpen] = useState(false);
   const [isImportSheetOpen, setIsImportSheetOpen] = useState(false);
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [autoAttemptExpiredProductId, setAutoAttemptExpiredProductId] = useState<string | null>(null);
 
   // Keyboard shortcut: Space or F2 opens POS register when not typing in an input
@@ -369,6 +371,8 @@ export const App: React.FC = () => {
         urgentExpiryCount={urgentExpiryCount}
         lowStockCount={lowStockCount}
         onOpenPos={() => setIsPosOpen(true)}
+        onOpenAddProduct={() => setIsAddProductOpen(true)}
+        onOpenImportSheet={() => setIsImportSheetOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         theme={settings.theme}
         onToggleTheme={handleToggleTheme}
@@ -376,17 +380,8 @@ export const App: React.FC = () => {
       />
 
       {/* Main Responsive Content Shell */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 md:pb-12 space-y-6">
         {/* Store Customer Safety Banner */}
-        <StoreSafetyBanner
-          expiredCount={expiredCount}
-          urgentCount={urgentExpiryCount}
-          freshCount={freshCount}
-          atRiskValue={atRiskValue}
-          currency={settings.currency}
-          onOpenExpiryTab={() => setActiveTab('expiry')}
-        />
-
         {activeTab === 'products' && (
           <ProductList
             products={products}
@@ -397,6 +392,7 @@ export const App: React.FC = () => {
             onUpdateProduct={handleUpdateProduct}
             onDeleteProduct={handleDeleteProduct}
             onOpenImportSheet={() => setIsImportSheetOpen(true)}
+            onOpenAddProduct={() => setIsAddProductOpen(true)}
           />
         )}
 
@@ -430,6 +426,17 @@ export const App: React.FC = () => {
           />
         )}
       </main>
+
+      
+      {/* Global Add Product Modal */}
+      {isAddProductOpen && (
+        <AddProductModal
+          isOpen={isAddProductOpen}
+          onClose={() => setIsAddProductOpen(false)}
+          currency={settings.currency}
+          onSave={handleAddProduct}
+        />
+      )}
 
       {/* Quick Sale / POS Modal */}
       {isPosOpen && (

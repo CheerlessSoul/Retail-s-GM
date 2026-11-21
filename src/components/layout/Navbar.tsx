@@ -7,9 +7,9 @@ import {
   ShoppingBag, 
   Settings, 
   Moon, 
-  Sun,
-  ShieldAlert,
-  AlertTriangle
+  Sun, 
+  Plus, 
+  FileSpreadsheet 
 } from 'lucide-react';
 import type { ActiveTab } from '../../types';
 
@@ -20,6 +20,8 @@ interface NavbarProps {
   urgentExpiryCount: number;
   lowStockCount: number;
   onOpenPos: () => void;
+  onOpenAddProduct?: () => void;
+  onOpenImportSheet?: () => void;
   onOpenSettings: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
@@ -33,6 +35,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   urgentExpiryCount,
   lowStockCount,
   onOpenPos,
+  onOpenAddProduct,
+  onOpenImportSheet,
   onOpenSettings,
   theme,
   onToggleTheme,
@@ -45,13 +49,13 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* ======================================================== */}
       {/* DESKTOP & TABLET TOP NAVIGATION BAR (md and above)       */}
       {/* ======================================================== */}
-      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
+      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
+          <div className="flex items-center justify-between h-16">
             
             {/* Logo and Shop Brand */}
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => onTabChange('products')}>
-              <div className="w-8 h-8 rounded-md bg-brand-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+            <div className="flex items-center space-x-3 cursor-pointer shrink-0" onClick={() => onTabChange('products')}>
+              <div className="w-9 h-9 rounded-lg bg-brand-600 text-white flex items-center justify-center font-extrabold text-base shadow-sm">
                 R
               </div>
               <div>
@@ -140,8 +144,29 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </nav>
 
-            {/* Quick Actions (POS, Dark Mode, Settings) */}
-            <div className="flex items-center space-x-2">
+            {/* Quick Actions (Add Product, Import Sheet, POS, Dark Mode, Settings) */}
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
+              {onOpenAddProduct && (
+                <button
+                  onClick={onOpenAddProduct}
+                  className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 rounded-md text-xs font-semibold flex items-center gap-1 transition-colors shadow-sm"
+                  title="Add a new product"
+                >
+                  <Plus className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
+                  <span className="hidden sm:inline">Add Product</span>
+                </button>
+              )}
+
+              {onOpenImportSheet && (
+                <button
+                  onClick={onOpenImportSheet}
+                  className="hidden md:flex px-2.5 py-1.5 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-md text-xs font-semibold items-center gap-1 transition-colors shadow-sm"
+                  title="Import Excel or Google Sheets (CSV)"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Import Sheet</span>
+                </button>
+              )}
               {/* Quick Sale Checkout Button */}
               <button
                 onClick={onOpenPos}

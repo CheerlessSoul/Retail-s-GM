@@ -47,6 +47,7 @@ interface ProductListProps {
   onUpdateProduct: (product: Product) => Promise<void>;
   onDeleteProduct: (productId: string) => Promise<void>;
   onOpenImportSheet?: () => void;
+  onOpenAddProduct?: () => void;
 }
 
 export const ProductList: React.FC<ProductListProps> = ({
@@ -58,6 +59,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   onUpdateProduct,
   onDeleteProduct,
   onOpenImportSheet,
+  onOpenAddProduct,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -211,7 +213,7 @@ export const ProductList: React.FC<ProductListProps> = ({
           </button>
 
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => onOpenAddProduct ? onOpenAddProduct() : setShowAddModal(true)}
             className="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-md transition-all flex items-center gap-1.5 btn-3d-brand"
           >
             <Plus className="w-4 h-4" />

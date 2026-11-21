@@ -32,7 +32,6 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
   onClearanceBatch,
 }) => {
   const [filterMode, setFilterMode] = useState<'all' | 'expired' | 'urgent' | 'warning' | 'safe'>('expired');
-  const [dayHorizonFilter, setDayHorizonFilter] = useState<'all' | '0' | '1' | '3' | '7'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   
   // Clearance Modal State
@@ -65,17 +64,6 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
   });
   const safeBatches = activeBatches.filter((b) => getDaysRemaining(b.expiryDate) > 30);
 
-  // Day-by-Day horizon counts for 7-day strip
-  const todayBatchesCount = activeBatches.filter((b) => getDaysRemaining(b.expiryDate) === 0).length;
-  const tomorrowBatchesCount = activeBatches.filter((b) => getDaysRemaining(b.expiryDate) === 1).length;
-  const threeDaysBatchesCount = activeBatches.filter((b) => {
-    const d = getDaysRemaining(b.expiryDate);
-    return d > 0 && d <= 3;
-  }).length;
-  const sevenDaysBatchesCount = activeBatches.filter((b) => {
-    const d = getDaysRemaining(b.expiryDate);
-    return d > 0 && d <= 7;
-  }).length;
 
   // Financial impact calculation
   const expiredLossValue = expiredBatches.reduce((acc, b) => {
@@ -97,16 +85,6 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
     else if (filterMode === 'warning') list = warningBatches;
     else if (filterMode === 'safe') list = safeBatches;
 
-    // Apply Day Horizon Filter if selected
-    if (dayHorizonFilter !== 'all') {
-      const maxDays = Number(dayHorizonFilter);
-      list = list.filter((b) => {
-        const d = getDaysRemaining(b.expiryDate);
-        if (maxDays === 0) return d === 0;
-        if (maxDays === 1) return d === 1;
-        return d > 0 && d <= maxDays;
-      });
-    }
 
     return list
       .filter((b) => {
@@ -370,66 +348,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
           </div>
         </div>
 
-        {/* 7-Day Expiry Horizon Strip (Agla 7 Din Ka Hal) */}
-        <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5 text-brand-600" />
-            Quick Expiry Horizon:
-          </span>
-          <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <button
-              onClick={() => setDayHorizonFilter('all')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-                dayHorizonFilter === 'all'
-                  ? 'bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-              }`}
-            >
-              All Horizons
-            </button>
-            <button
-              onClick={() => { setDayHorizonFilter('0'); setFilterMode('urgent'); }}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 ${
-                dayHorizonFilter === '0'
-                  ? 'bg-red-600 text-white shadow-sm'
-                  : 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 hover:bg-red-100'
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
-              Expires Today ({todayBatchesCount})
-            </button>
-            <button
-              onClick={() => { setDayHorizonFilter('1'); setFilterMode('urgent'); }}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
-                dayHorizonFilter === '1'
-                  ? 'bg-orange-600 text-white shadow-sm'
-                  : 'bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 hover:bg-orange-100'
-              }`}
-            >
-              Tomorrow ({tomorrowBatchesCount})
-            </button>
-            <button
-              onClick={() => { setDayHorizonFilter('3'); setFilterMode('urgent'); }}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
-                dayHorizonFilter === '3'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100'
-              }`}
-            >
-              Next 3 Days ({threeDaysBatchesCount})
-            </button>
-            <button
-              onClick={() => { setDayHorizonFilter('7'); setFilterMode('urgent'); }}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
-                dayHorizonFilter === '7'
-                  ? 'bg-yellow-600 text-white shadow-sm'
-                  : 'bg-yellow-50 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300 hover:bg-yellow-100'
-              }`}
-            >
-              Next 7 Days ({sevenDaysBatchesCount})
-            </button>
-          </div>
-        </div>
+        
       </div>
 
       {/* Batch Table */}
