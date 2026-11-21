@@ -64,7 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[180px]">
-                  {shopName}
+                  {shopName || 'My Store'}
                 </p>
               </div>
             </div>

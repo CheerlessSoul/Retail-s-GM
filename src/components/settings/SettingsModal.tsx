@@ -7,14 +7,14 @@ import {
   VolumeX, 
   Download, 
   Upload, 
-  RefreshCcw, 
+  Trash2, 
   Store, 
   Check, 
   ShieldCheck 
 } from 'lucide-react';
 import type { ShopSettings } from '../../types';
 import { db } from '../../db';
-import { initializeDatabase } from '../../db/seedData';
+import { loadSampleDemoData } from '../../db/seedData';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -34,6 +34,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [shopName, setShopName] = useState(settings.shopName);
   const [ownerName, setOwnerName] = useState(settings.ownerName);
   const [phone, setPhone] = useState(settings.phone);
+  const [storeType, setStoreType] = useState(settings.storeType || 'grocery');
   const [currency, setCurrency] = useState(settings.currency);
   const [urgentExpiryDays, setUrgentExpiryDays] = useState(settings.urgentExpiryDays);
   const [warningExpiryDays, setWarningExpiryDays] = useState(settings.warningExpiryDays);
@@ -50,11 +51,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       shopName: shopName.trim(),
       ownerName: ownerName.trim(),
       phone: phone.trim(),
+      storeType,
       currency,
       urgentExpiryDays: Number(urgentExpiryDays) || 7,
       warningExpiryDays: Number(warningExpiryDays) || 30,
       theme,
       soundEnabled,
+      isOnboarded: true,
     };
     await onSaveSettings(updated);
     onThemeToggle(theme);
@@ -135,13 +138,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     reader.readAsText(file);
   };
 
-  const handleResetData = async () => {
-    if (window.confirm('Reset database to default demonstration inventory? This will restore sample retail products, batches, and sales.')) {
-      await db.products.clear();
-      await db.batches.clear();
-      await db.stockHistory.clear();
-      await db.sales.clear();
-      await initializeDatabase();
+  const handleClearAllData = async () => {
+    if (window.confirm('Wipe all products, batches, and sales from your store? Your inventory will be completely clean and empty.')) {
+      await db.clearAllStoreData();
+      alert('All products and sales data have been cleared.');
+      window.location.reload();
+    }
+  };
+
+  const handleLoadSampleData = async () => {
+    if (window.confirm('Load 4 sample items (Milk, Salt, Dolo, Atta) into your store for testing?')) {
+      await loadSampleDemoData();
+      alert('Sample products loaded.');
       window.location.reload();
     }
   };
@@ -360,11 +368,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               <button
                 type="button"
-                onClick={handleResetData}
+                onClick={handleClearAllData}
                 className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-red-200 dark:border-red-800"
+                title="Wipe store inventory completely clean"
               >
-                <RefreshCcw className="w-3.5 h-3.5" />
-                <span>Reset Demo</span>
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Clear All Data</span>
+              </button>
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleLoadSampleData}
+                className="w-full py-1.5 px-3 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 text-slate-600 dark:text-slate-300 text-[11px] rounded-md border border-slate-200 dark:border-slate-700 transition-colors text-center"
+              >
+                Need test data? Click here to load 4 sample products
               </button>
             </div>
           </div>

@@ -2,43 +2,45 @@ import { db } from './index';
 import type { Product, ProductBatch, StockHistory, SaleTransaction, ShopSettings } from '../types';
 
 export async function initializeDatabase() {
-  const count = await db.products.count();
-  if (count > 0) return; // already seeded
+  const settingsCount = await db.settings.count();
+  if (settingsCount === 0) {
+    // Fresh store default settings - not onboarded yet
+    const defaultSettings: ShopSettings = {
+      id: 'default_settings',
+      shopName: '',
+      ownerName: '',
+      phone: '',
+      address: '',
+      currency: '₹',
+      urgentExpiryDays: 7,
+      warningExpiryDays: 30,
+      theme: 'light',
+      soundEnabled: true,
+      enableLowStockAlerts: true,
+      isOnboarded: false,
+      storeType: 'grocery',
+    };
+    await db.settings.put(defaultSettings);
+  }
+}
 
-  const now = new Date();
-  const formatISO = (d: Date) => d.toISOString();
-  const formatYYYYMMDD = (d: Date) => d.toISOString().split('T')[0];
-
+/**
+ * Optional: Can be called from Settings if a user specifically requests to load sample data for testing
+ */
+export async function loadSampleDemoData() {
   const daysFromNow = (days: number) => {
     const d = new Date();
     d.setDate(d.getDate() + days);
-    return formatYYYYMMDD(d);
+    return d.toISOString().split('T')[0];
   };
 
   const daysAgo = (days: number) => {
     const d = new Date();
     d.setDate(d.getDate() - days);
-    return formatISO(d);
+    return d.toISOString();
   };
 
-  // Default Shop Settings
-  const defaultSettings: ShopSettings = {
-    id: 'default_settings',
-    shopName: 'A-One General Store',
-    ownerName: 'Rajesh Sharma',
-    phone: '+91 98765 43210',
-    address: 'Shop #4, Market Complex, Main Road',
-    currency: '₹',
-    urgentExpiryDays: 7,
-    warningExpiryDays: 30,
-    theme: 'light',
-    soundEnabled: true,
-    enableLowStockAlerts: true,
-  };
-  await db.settings.put(defaultSettings);
-
-  // Products
-  const products: Product[] = [
+  const sampleProducts: Product[] = [
     {
       id: 'prod_1',
       name: 'Amul Taaza Toned Milk 1L',
@@ -49,23 +51,23 @@ export async function initializeDatabase() {
       costPrice: 50,
       sellingPrice: 56,
       minStockThreshold: 10,
-      currentStock: 4,
-      createdAt: daysAgo(10),
-      updatedAt: daysAgo(2),
+      currentStock: 14,
+      createdAt: daysAgo(5),
+      updatedAt: daysAgo(1),
     },
     {
       id: 'prod_2',
-      name: 'Mother Dairy Fresh Paneer 200g',
-      brand: 'Mother Dairy',
-      category: 'Dairy',
-      barcode: '8901648001021',
+      name: 'Tata Salt Vacuum Evaporated 1kg',
+      brand: 'Tata',
+      category: 'Grocery',
+      barcode: '8901030383701',
       unit: 'pack',
-      costPrice: 80,
-      sellingPrice: 95,
-      minStockThreshold: 8,
-      currentStock: 6,
-      createdAt: daysAgo(5),
-      updatedAt: daysAgo(1),
+      costPrice: 22,
+      sellingPrice: 28,
+      minStockThreshold: 15,
+      currentStock: 25,
+      createdAt: daysAgo(10),
+      updatedAt: daysAgo(2),
     },
     {
       id: 'prod_3',
@@ -78,417 +80,70 @@ export async function initializeDatabase() {
       sellingPrice: 34,
       minStockThreshold: 10,
       currentStock: 18,
-      createdAt: daysAgo(30),
-      updatedAt: daysAgo(5),
+      createdAt: daysAgo(12),
+      updatedAt: daysAgo(3),
     },
     {
       id: 'prod_4',
       name: 'Aashirvaad Shudh Chakki Atta 5kg',
       brand: 'ITC',
       category: 'Grocery',
-      barcode: '8901030383701',
+      barcode: '8901030383702',
       unit: 'bag',
       costPrice: 210,
       sellingPrice: 245,
       minStockThreshold: 5,
       currentStock: 15,
-      createdAt: daysAgo(20),
-      updatedAt: daysAgo(3),
-    },
-    {
-      id: 'prod_5',
-      name: 'Tata Salt Vacuum Evaporated 1kg',
-      brand: 'Tata',
-      category: 'Grocery',
-      barcode: '8901058852272',
-      unit: 'pack',
-      costPrice: 22,
-      sellingPrice: 28,
-      minStockThreshold: 15,
-      currentStock: 35,
-      createdAt: daysAgo(25),
-      updatedAt: daysAgo(4),
-    },
-    {
-      id: 'prod_6',
-      name: 'Fortune Sunlite Refined Sunflower Oil 1L',
-      brand: 'Adani Wilmar',
-      category: 'Grocery',
-      barcode: '8906007280123',
-      unit: 'pouch',
-      costPrice: 118,
-      sellingPrice: 140,
-      minStockThreshold: 8,
-      currentStock: 14,
       createdAt: daysAgo(15),
-      updatedAt: daysAgo(2),
-    },
-    {
-      id: 'prod_7',
-      name: 'Britannia Good Day Butter Biscuits 200g',
-      brand: 'Britannia',
-      category: 'Snacks',
-      barcode: '8901063012210',
-      unit: 'pack',
-      costPrice: 32,
-      sellingPrice: 40,
-      minStockThreshold: 10,
-      currentStock: 3, // Low stock trigger
-      createdAt: daysAgo(18),
-      updatedAt: daysAgo(1),
-    },
-    {
-      id: 'prod_8',
-      name: 'Maggi 2-Minute Masala Noodles 70g',
-      brand: 'Nestle',
-      category: 'Snacks',
-      barcode: '8901058863414',
-      unit: 'pack',
-      costPrice: 11,
-      sellingPrice: 14,
-      minStockThreshold: 20,
-      currentStock: 45,
-      createdAt: daysAgo(35),
-      updatedAt: daysAgo(1),
-    },
-    {
-      id: 'prod_9',
-      name: 'Colgate Strong Teeth Toothpaste 150g',
-      brand: 'Colgate',
-      category: 'Personal Care',
-      barcode: '8901314010542',
-      unit: 'tube',
-      costPrice: 85,
-      sellingPrice: 108,
-      minStockThreshold: 6,
-      currentStock: 12,
-      createdAt: daysAgo(40),
-      updatedAt: daysAgo(6),
-    },
-    {
-      id: 'prod_10',
-      name: 'Bru Instant Coffee Powder Jar 100g',
-      brand: 'HUL',
-      category: 'Beverages',
-      barcode: '8901030012342',
-      unit: 'jar',
-      costPrice: 195,
-      sellingPrice: 235,
-      minStockThreshold: 5,
-      currentStock: 8,
-      createdAt: daysAgo(20),
-      updatedAt: daysAgo(3),
+      updatedAt: daysAgo(4),
     },
   ];
 
-  // Batches (Intentionally creating expired, urgent, upcoming, and fresh batches)
-  const batches: ProductBatch[] = [
+  const sampleBatches: ProductBatch[] = [
     {
       id: 'batch_1',
       productId: 'prod_1',
-      batchNumber: 'AML-042',
-      expiryDate: daysFromNow(-2), // EXPIRED 2 days ago!
-      mfgDate: daysFromNow(-8),
-      quantity: 4,
-      initialQuantity: 12,
-      status: 'expired',
-      notes: 'Customer returned 1 pack, rest unsold',
-      createdAt: daysAgo(10),
+      batchNumber: 'AML-04',
+      expiryDate: daysFromNow(2),
+      quantity: 14,
+      initialQuantity: 14,
+      status: 'expiring_soon',
+      createdAt: daysAgo(5),
     },
     {
       id: 'batch_2',
       productId: 'prod_2',
-      batchNumber: 'MD-918',
-      expiryDate: daysFromNow(3), // EXPIRING IN 3 DAYS! Urgent
-      mfgDate: daysFromNow(-5),
-      quantity: 6,
-      initialQuantity: 15,
-      status: 'expiring_soon',
-      notes: 'Place on front shelf clearance discount',
-      createdAt: daysAgo(5),
+      batchNumber: 'TS-881',
+      expiryDate: daysFromNow(365),
+      quantity: 25,
+      initialQuantity: 25,
+      status: 'active',
+      createdAt: daysAgo(10),
     },
     {
       id: 'batch_3',
       productId: 'prod_3',
       batchNumber: 'DL-2026B',
-      expiryDate: daysFromNow(22), // EXPIRING IN 22 DAYS! Upcoming
-      mfgDate: daysFromNow(-120),
+      expiryDate: daysFromNow(180),
       quantity: 18,
-      initialQuantity: 30,
-      status: 'expiring_soon',
-      notes: 'Check distributor return policy if unsold',
-      createdAt: daysAgo(30),
+      initialQuantity: 18,
+      status: 'active',
+      createdAt: daysAgo(12),
     },
     {
       id: 'batch_4',
       productId: 'prod_4',
-      batchNumber: 'ITC-881',
-      expiryDate: daysFromNow(150),
-      mfgDate: daysFromNow(-20),
+      batchNumber: 'ATT-301',
+      expiryDate: daysFromNow(90),
       quantity: 15,
-      initialQuantity: 20,
-      status: 'active',
-      createdAt: daysAgo(20),
-    },
-    {
-      id: 'batch_5',
-      productId: 'prod_5',
-      batchNumber: 'TS-331',
-      expiryDate: daysFromNow(300),
-      mfgDate: daysFromNow(-30),
-      quantity: 35,
-      initialQuantity: 40,
-      status: 'active',
-      createdAt: daysAgo(25),
-    },
-    {
-      id: 'batch_6',
-      productId: 'prod_6',
-      batchNumber: 'FOR-119',
-      expiryDate: daysFromNow(210),
-      mfgDate: daysFromNow(-15),
-      quantity: 14,
-      initialQuantity: 20,
+      initialQuantity: 15,
       status: 'active',
       createdAt: daysAgo(15),
     },
-    {
-      id: 'batch_7',
-      productId: 'prod_7',
-      batchNumber: 'BR-702',
-      expiryDate: daysFromNow(18), // EXPIRING IN 18 DAYS! Upcoming
-      mfgDate: daysFromNow(-60),
-      quantity: 3,
-      initialQuantity: 25,
-      status: 'expiring_soon',
-      createdAt: daysAgo(18),
-    },
-    {
-      id: 'batch_8',
-      productId: 'prod_8',
-      batchNumber: 'MG-554',
-      expiryDate: daysFromNow(120),
-      mfgDate: daysFromNow(-25),
-      quantity: 45,
-      initialQuantity: 60,
-      status: 'active',
-      createdAt: daysAgo(35),
-    },
-    {
-      id: 'batch_9',
-      productId: 'prod_9',
-      batchNumber: 'CLG-228',
-      expiryDate: daysFromNow(400),
-      mfgDate: daysFromNow(-40),
-      quantity: 12,
-      initialQuantity: 15,
-      status: 'active',
-      createdAt: daysAgo(40),
-    },
-    {
-      id: 'batch_10',
-      productId: 'prod_10',
-      batchNumber: 'BRU-909',
-      expiryDate: daysFromNow(180),
-      mfgDate: daysFromNow(-20),
-      quantity: 8,
-      initialQuantity: 10,
-      status: 'active',
-      createdAt: daysAgo(20),
-    },
   ];
 
-  // Stock History
-  const history: StockHistory[] = [
-    {
-      id: 'hist_seed_1',
-      productId: 'prod_1',
-      productName: 'Amul Taaza Toned Milk 1L',
-      batchNumber: 'AML-042',
-      type: 'restock',
-      quantityDelta: 12,
-      stockBefore: 0,
-      stockAfter: 12,
-      reason: 'Direct dairy distributor delivery',
-      timestamp: daysAgo(10),
-    },
-    {
-      id: 'hist_seed_2',
-      productId: 'prod_4',
-      productName: 'Aashirvaad Shudh Chakki Atta 5kg',
-      batchNumber: 'ITC-881',
-      type: 'restock',
-      quantityDelta: 20,
-      stockBefore: 0,
-      stockAfter: 20,
-      reason: 'Wholesale stock restock',
-      timestamp: daysAgo(20),
-    },
-    {
-      id: 'hist_seed_3',
-      productId: 'prod_7',
-      productName: 'Britannia Good Day Butter Biscuits 200g',
-      batchNumber: 'BR-702',
-      type: 'damaged',
-      quantityDelta: -2,
-      stockBefore: 5,
-      stockAfter: 3,
-      reason: 'Packet torn during customer browsing',
-      timestamp: daysAgo(1),
-    },
-  ];
-
-  // Sample Past Sales (spanning today, yesterday, and 3 days ago for rich analytics)
-  const sales: SaleTransaction[] = [
-    {
-      id: 'sale_1',
-      receiptNumber: 'RGM-100201',
-      items: [
-        {
-          productId: 'prod_4',
-          productName: 'Aashirvaad Shudh Chakki Atta 5kg',
-          batchId: 'batch_4',
-          batchNumber: 'ITC-881',
-          expiryDate: daysFromNow(150),
-          quantity: 2,
-          unitPrice: 245,
-          costPrice: 210,
-          totalPrice: 490,
-          profit: 70,
-        },
-        {
-          productId: 'prod_5',
-          productName: 'Tata Salt Vacuum Evaporated 1kg',
-          batchId: 'batch_5',
-          batchNumber: 'TS-331',
-          expiryDate: daysFromNow(300),
-          quantity: 1,
-          unitPrice: 28,
-          costPrice: 22,
-          totalPrice: 28,
-          profit: 6,
-        },
-      ],
-      totalAmount: 518,
-      totalCost: 442,
-      totalProfit: 76,
-      paymentMethod: 'upi',
-      customerName: 'Anil Verma',
-      timestamp: daysAgo(3),
-    },
-    {
-      id: 'sale_2',
-      receiptNumber: 'RGM-100202',
-      items: [
-        {
-          productId: 'prod_8',
-          productName: 'Maggi 2-Minute Masala Noodles 70g',
-          batchId: 'batch_8',
-          batchNumber: 'MG-554',
-          expiryDate: daysFromNow(120),
-          quantity: 5,
-          unitPrice: 14,
-          costPrice: 11,
-          totalPrice: 70,
-          profit: 15,
-        },
-        {
-          productId: 'prod_6',
-          productName: 'Fortune Sunlite Refined Sunflower Oil 1L',
-          batchId: 'batch_6',
-          batchNumber: 'FOR-119',
-          expiryDate: daysFromNow(210),
-          quantity: 2,
-          unitPrice: 140,
-          costPrice: 118,
-          totalPrice: 280,
-          profit: 44,
-        },
-      ],
-      totalAmount: 350,
-      totalCost: 291,
-      totalProfit: 59,
-      paymentMethod: 'cash',
-      timestamp: daysAgo(2),
-    },
-    {
-      id: 'sale_3',
-      receiptNumber: 'RGM-100203',
-      items: [
-        {
-          productId: 'prod_3',
-          productName: 'Dolo 650mg Paracetamol Strip (15 Tab)',
-          batchId: 'batch_3',
-          batchNumber: 'DL-2026B',
-          expiryDate: daysFromNow(22),
-          quantity: 3,
-          unitPrice: 34,
-          costPrice: 24,
-          totalPrice: 102,
-          profit: 30,
-        },
-      ],
-      totalAmount: 102,
-      totalCost: 72,
-      totalProfit: 30,
-      paymentMethod: 'cash',
-      customerName: 'Kavita',
-      timestamp: daysAgo(1),
-    },
-    {
-      id: 'sale_4',
-      receiptNumber: 'RGM-100204',
-      items: [
-        {
-          productId: 'prod_10',
-          productName: 'Bru Instant Coffee Powder Jar 100g',
-          batchId: 'batch_10',
-          batchNumber: 'BRU-909',
-          expiryDate: daysFromNow(180),
-          quantity: 1,
-          unitPrice: 235,
-          costPrice: 195,
-          totalPrice: 235,
-          profit: 40,
-        },
-        {
-          productId: 'prod_7',
-          productName: 'Britannia Good Day Butter Biscuits 200g',
-          batchId: 'batch_7',
-          batchNumber: 'BR-702',
-          expiryDate: daysFromNow(18),
-          quantity: 2,
-          unitPrice: 40,
-          costPrice: 32,
-          totalPrice: 80,
-          profit: 16,
-        },
-        {
-          productId: 'prod_8',
-          productName: 'Maggi 2-Minute Masala Noodles 70g',
-          batchId: 'batch_8',
-          batchNumber: 'MG-554',
-          expiryDate: daysFromNow(120),
-          quantity: 4,
-          unitPrice: 14,
-          costPrice: 11,
-          totalPrice: 56,
-          profit: 12,
-        },
-      ],
-      totalAmount: 371,
-      totalCost: 303,
-      totalProfit: 68,
-      paymentMethod: 'upi',
-      customerName: 'Sanjay',
-      timestamp: daysAgo(0), // Today
-    },
-  ];
-
-  await db.transaction('rw', db.products, db.batches, db.stockHistory, db.sales, async () => {
-    await db.products.bulkPut(products);
-    await db.batches.bulkPut(batches);
-    await db.stockHistory.bulkPut(history);
-    await db.sales.bulkPut(sales);
+  await db.transaction('rw', db.products, db.batches, async () => {
+    await db.products.bulkPut(sampleProducts);
+    await db.batches.bulkPut(sampleBatches);
   });
 }

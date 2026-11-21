@@ -400,29 +400,31 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                 </div>
 
                 {/* Quick Speed-Dial Staples (One-Tap Add for high volume items) */}
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    Fast Billing Shortcuts (Tap to Add)
-                  </span>
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                    {products.slice(0, 5).map((p) => {
-                      const { isCompletelyExpired } = getProductStockStatus(p.id);
-                      return (
-                        <button
-                          key={`staple-${p.id}`}
-                          onClick={() => addToCart(p)}
-                          className={`px-2.5 py-1.5 rounded border text-[11px] font-semibold whitespace-nowrap transition-all shrink-0 ${
-                            isCompletelyExpired 
-                              ? 'bg-red-50 text-red-700 border-red-300 dark:bg-red-950/40 dark:border-red-800' 
-                              : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-brand-500'
-                          }`}
-                        >
-                          {p.name.split(' ')[0]} ({currency}{p.sellingPrice})
-                        </button>
-                      );
-                    })}
+                {products.length > 0 && (
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Fast Billing Shortcuts (Tap to Add)
+                    </span>
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                      {products.slice(0, 5).map((p) => {
+                        const { isCompletelyExpired } = getProductStockStatus(p.id);
+                        return (
+                          <button
+                            key={`staple-${p.id}`}
+                            onClick={() => addToCart(p)}
+                            className={`px-2.5 py-1.5 rounded border text-[11px] font-semibold whitespace-nowrap transition-all shrink-0 ${
+                              isCompletelyExpired 
+                                ? 'bg-red-50 text-red-700 border-red-300 dark:bg-red-950/40 dark:border-red-800' 
+                                : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-brand-500'
+                            }`}
+                          >
+                            {p.name.split(' ')[0]} ({currency}{p.sellingPrice})
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Available Products Grid */}
                 <div className="border border-slate-200 dark:border-slate-700 rounded-md p-3 bg-slate-50/60 dark:bg-slate-900/40">
@@ -477,11 +479,15 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                       );
                     })}
 
-                    {searchResults.length === 0 && (
+                    {products.length === 0 ? (
+                      <div className="col-span-2 text-center py-6 text-xs text-slate-400">
+                        No products in store yet. Add products or import a spreadsheet from the Products screen.
+                      </div>
+                    ) : searchResults.length === 0 ? (
                       <div className="col-span-2 text-center py-6 text-xs text-slate-400">
                         No products matching "{searchTerm}".
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>

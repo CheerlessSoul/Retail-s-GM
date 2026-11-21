@@ -10,7 +10,9 @@ import {
   List, 
   Tag, 
   Layers, 
-  ChevronRight 
+  ChevronRight,
+  FileSpreadsheet,
+  Package
 } from 'lucide-react';
 import type { Product, ProductBatch } from '../../types';
 import { AddProductModal } from './AddProductModal';
@@ -44,6 +46,7 @@ interface ProductListProps {
   }) => Promise<void>;
   onUpdateProduct: (product: Product) => Promise<void>;
   onDeleteProduct: (productId: string) => Promise<void>;
+  onOpenImportSheet?: () => void;
 }
 
 export const ProductList: React.FC<ProductListProps> = ({
@@ -54,6 +57,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   onAddBatch,
   onUpdateProduct,
   onDeleteProduct,
+  onOpenImportSheet,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -187,6 +191,17 @@ export const ProductList: React.FC<ProductListProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {onOpenImportSheet && (
+            <button
+              onClick={onOpenImportSheet}
+              className="px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors flex items-center gap-1.5 btn-3d-secondary"
+              title="Import spreadsheet from Excel (.xlsx) or Google Sheets (CSV)"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="hidden sm:inline">Import Sheet</span>
+            </button>
+          )}
+
           <button
             onClick={() => setShowBarcodeScanner(true)}
             className="px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors flex items-center gap-1.5 btn-3d-secondary"
@@ -267,12 +282,42 @@ export const ProductList: React.FC<ProductListProps> = ({
       </div>
 
       {/* Product Display List */}
-      {filteredProducts.length === 0 ? (
+      {products.length === 0 ? (
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center max-w-xl mx-auto shadow-sm">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center mx-auto mb-4 border border-emerald-100 dark:border-emerald-900/60">
+            <Package className="w-8 h-8" />
+          </div>
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
+            No products in your store yet
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-md mx-auto leading-relaxed">
+            Your store is ready! Add your products to track real-time stock levels, monitor expiry dates, and ring up sales at the billing counter.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
+            {onOpenImportSheet && (
+              <button
+                onClick={onOpenImportSheet}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center gap-2 shadow-sm"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                <span>Import Excel / CSV Sheet</span>
+              </button>
+            )}
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 flex items-center justify-center gap-2 btn-3d-brand shadow-md"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add First Product</span>
+            </button>
+          </div>
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 text-center">
           <Tag className="w-10 h-10 text-slate-400 mx-auto mb-2" />
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">No products found</h3>
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">No products match your search</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-            Try adjusting your search query or add a new product using the button above.
+            Try adjusting your search query or reset the category filter to view all items.
           </p>
         </div>
       ) : viewMode === 'grid' ? (

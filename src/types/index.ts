@@ -87,6 +87,8 @@ export interface ShopSettings {
   theme: 'light' | 'dark';
   soundEnabled: boolean;
   enableLowStockAlerts: boolean;
+  isOnboarded?: boolean;
+  storeType?: 'grocery' | 'pharmacy' | 'general' | 'dairy' | 'other';
 }
 
 export interface OcrExtractedData {

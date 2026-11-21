@@ -19,6 +19,8 @@ import { AnalyticsDashboard } from './components/analytics/AnalyticsDashboard';
 import { QuickSaleModal } from './components/pos/QuickSaleModal';
 import { SettingsModal } from './components/settings/SettingsModal';
 import { StoreSafetyBanner } from './components/common/StoreSafetyBanner';
+import { StoreSetupModal } from './components/onboarding/StoreSetupModal';
+import { ImportSheetModal } from './components/common/ImportSheetModal';
 import { ToastContainer, ToastMessage } from './components/common/Toast';
 
 export const App: React.FC = () => {
@@ -29,8 +31,8 @@ export const App: React.FC = () => {
   const [sales, setSales] = useState<SaleTransaction[]>([]);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [settings, setSettings] = useState<ShopSettings>({
-    shopName: "Retail's GM Store",
-    ownerName: 'Store Owner',
+    shopName: '',
+    ownerName: '',
     phone: '',
     address: '',
     currency: '₹',
@@ -39,11 +41,15 @@ export const App: React.FC = () => {
     theme: 'light',
     soundEnabled: true,
     enableLowStockAlerts: true,
+    isOnboarded: false,
+    storeType: 'grocery',
   });
 
   const [isLoading, setIsLoading] = useState(true);
   const [isPosOpen, setIsPosOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSetupModalOpen, setIsSetupModalOpen] = useState(false);
+  const [isImportSheetOpen, setIsImportSheetOpen] = useState(false);
   const [autoAttemptExpiredProductId, setAutoAttemptExpiredProductId] = useState<string | null>(null);
 
   // Keyboard shortcut: Space or F2 opens POS register when not typing in an input
@@ -107,6 +113,13 @@ export const App: React.FC = () => {
         setSettings(safeSettings);
         applyTheme(safeSettings.theme);
         sound.setEnabled(safeSettings.soundEnabled);
+
+        // First-time onboarding trigger if shop has not been named or onboarded
+        if (!safeSettings.isOnboarded || !safeSettings.shopName) {
+          setIsSetupModalOpen(true);
+        }
+      } else {
+        setIsSetupModalOpen(true);
       }
     } finally {
       setIsLoading(false);
@@ -176,25 +189,44 @@ export const App: React.FC = () => {
     return acc + (p ? p.sellingPrice * b.quantity : 0);
   }, 0);
 
-  const handleTriggerDemoScenario = (scenario: 'expired_block' | 'barcode_test' | 'clearance') => {
-    if (scenario === 'expired_block') {
-      const expBatch = batches.find((b) => {
-        if (b.quantity <= 0 || b.status === 'disposed') return false;
-        const exp = db.parseLocalDate(b.expiryDate);
-        return Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) <= 0;
-      });
-      const targetProdId = expBatch ? expBatch.productId : (products[1]?.id || products[0]?.id);
-      setAutoAttemptExpiredProductId(targetProdId);
-      setIsPosOpen(true);
-      addToast('Safety Alarm Test', 'Attempting to ring up expired item. Watch safety lock trigger!', 'info');
-    } else if (scenario === 'barcode_test') {
-      setAutoAttemptExpiredProductId(null);
-      setIsPosOpen(true);
-      addToast('Barcode Test', 'Scan or click staple products for 1-second bill generation!', 'info');
-    } else if (scenario === 'clearance') {
-      setActiveTab('expiry');
-      addToast('Clearance Triage', 'Switched to Smart Expiry: review batches expiring soon', 'info');
+  const handleCompleteSetup = async (
+    newSettings: ShopSettings,
+    nextAction?: 'import_sheet' | 'add_product' | 'dashboard'
+  ) => {
+    // If the database has leftover mock data from previous demo, clear it so store starts fresh
+    if (!settings.isOnboarded && products.length > 0) {
+      await db.clearAllStoreData();
     }
+
+    await db.settings.put(newSettings);
+    setSettings(newSettings);
+    setIsSetupModalOpen(false);
+    await refreshData();
+
+    addToast(`Welcome to ${newSettings.shopName}!`, 'Your store profile is set up successfully.', 'success');
+
+    if (nextAction === 'import_sheet') {
+      setIsImportSheetOpen(true);
+    } else if (nextAction === 'add_product') {
+      setActiveTab('products');
+    }
+  };
+
+  const handleBulkImport = async (
+    items: Array<{
+      product: Omit<Product, 'currentStock' | 'createdAt' | 'updatedAt'>;
+      batch: {
+        batchNumber: string;
+        expiryDate: string;
+        mfgDate?: string;
+        quantity: number;
+        notes?: string;
+      };
+    }>
+  ) => {
+    await db.bulkAddProductsWithBatches(items);
+    await refreshData();
+    addToast('Import Complete', `Added ${items.length} products to your store`, 'success');
   };
 
   // DB Handlers with Interactive Feedback Toasts
@@ -345,7 +377,7 @@ export const App: React.FC = () => {
 
       {/* Main Responsive Content Shell */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
-        {/* Store Customer Safety Banner & Hackathon Demo Presets */}
+        {/* Store Customer Safety Banner */}
         <StoreSafetyBanner
           expiredCount={expiredCount}
           urgentCount={urgentExpiryCount}
@@ -353,7 +385,6 @@ export const App: React.FC = () => {
           atRiskValue={atRiskValue}
           currency={settings.currency}
           onOpenExpiryTab={() => setActiveTab('expiry')}
-          onTriggerDemoScenario={handleTriggerDemoScenario}
         />
 
         {activeTab === 'products' && (
@@ -365,6 +396,7 @@ export const App: React.FC = () => {
             onAddBatch={handleAddBatch}
             onUpdateProduct={handleUpdateProduct}
             onDeleteProduct={handleDeleteProduct}
+            onOpenImportSheet={() => setIsImportSheetOpen(true)}
           />
         )}
 
@@ -423,6 +455,25 @@ export const App: React.FC = () => {
           settings={settings}
           onSaveSettings={handleSaveSettings}
           onThemeToggle={applyTheme}
+        />
+      )}
+
+      {/* First-Time Store Setup Onboarding Popup */}
+      {isSetupModalOpen && (
+        <StoreSetupModal
+          isOpen={isSetupModalOpen}
+          initialSettings={settings}
+          onCompleteSetup={handleCompleteSetup}
+        />
+      )}
+
+      {/* Spreadsheet / Excel Product Import Modal */}
+      {isImportSheetOpen && (
+        <ImportSheetModal
+          isOpen={isImportSheetOpen}
+          onClose={() => setIsImportSheetOpen(false)}
+          currency={settings.currency}
+          onImportComplete={handleBulkImport}
         />
       )}
 

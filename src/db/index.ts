@@ -117,6 +117,90 @@ export class RetailDatabase extends Dexie {
   }
 
   /**
+   * Bulk import products with their initial batches from sheet or CSV
+   */
+  async bulkAddProductsWithBatches(
+    items: Array<{
+      product: Omit<Product, 'currentStock' | 'createdAt' | 'updatedAt'>;
+      batch: {
+        batchNumber: string;
+        expiryDate: string;
+        mfgDate?: string;
+        quantity: number;
+        notes?: string;
+      };
+    }>
+  ) {
+    const now = new Date().toISOString();
+    const productsToAdd: Product[] = [];
+    const batchesToAdd: ProductBatch[] = [];
+    const historyToAdd: StockHistory[] = [];
+
+    for (const item of items) {
+      const pId = item.product.id || `prod_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const bId = `batch_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+      const newProduct: Product = {
+        ...item.product,
+        id: pId,
+        currentStock: Number(item.batch.quantity) || 0,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      const newBatch: ProductBatch = {
+        id: bId,
+        productId: pId,
+        batchNumber: item.batch.batchNumber || 'B-01',
+        expiryDate: item.batch.expiryDate,
+        mfgDate: item.batch.mfgDate,
+        quantity: Number(item.batch.quantity) || 0,
+        initialQuantity: Number(item.batch.quantity) || 0,
+        status: this.computeBatchStatus(item.batch.expiryDate),
+        notes: item.batch.notes,
+        createdAt: now,
+      };
+
+      const historyEntry: StockHistory = {
+        id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        productId: pId,
+        productName: newProduct.name,
+        batchNumber: newBatch.batchNumber,
+        type: 'restock',
+        quantityDelta: newBatch.quantity,
+        stockBefore: 0,
+        stockAfter: newBatch.quantity,
+        reason: 'Sheet import stock intake',
+        timestamp: now,
+      };
+
+      productsToAdd.push(newProduct);
+      batchesToAdd.push(newBatch);
+      historyToAdd.push(historyEntry);
+    }
+
+    await this.transaction('rw', this.products, this.batches, this.stockHistory, async () => {
+      await this.products.bulkPut(productsToAdd);
+      await this.batches.bulkPut(batchesToAdd);
+      await this.stockHistory.bulkPut(historyToAdd);
+    });
+
+    return { products: productsToAdd, batches: batchesToAdd };
+  }
+
+  /**
+   * Reset and clear all store inventory and transaction data (demo wipe)
+   */
+  async clearAllStoreData() {
+    await this.transaction('rw', this.products, this.batches, this.stockHistory, this.sales, async () => {
+      await this.products.clear();
+      await this.batches.clear();
+      await this.stockHistory.clear();
+      await this.sales.clear();
+    });
+  }
+
+  /**
    * Add a new batch to an existing product
    */
   async addBatchToProduct(
