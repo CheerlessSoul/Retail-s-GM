@@ -225,34 +225,34 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-4xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 overflow-y-auto">
+        <div className="bg-white dark:bg-slate-800 rounded-lg w-full max-w-4xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto max-h-[92vh] flex flex-col">
           
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-brand-50/60 dark:bg-slate-800">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
             <div className="flex items-center space-x-2">
-              <span className="p-1.5 bg-brand-600 text-white rounded-lg">
+              <span className="p-1.5 bg-brand-600 text-white rounded-md">
                 <ShoppingBag className="w-4 h-4" />
               </span>
               <div>
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
-                  Quick Retail Checkout / POS
+                <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+                  Store Register / Checkout
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  First-Expire-First-Out automatic batch deduction, barcode scanning, and safety checks.
+                  FEFO batch deduction, barcode scanning, and customer safety checks.
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="p-1.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
           {error && (
-            <div className="mx-6 mt-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-2 text-xs font-semibold text-red-700 dark:text-red-300">
+            <div className="mx-5 mt-3 p-2.5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-md flex items-center gap-2 text-xs font-semibold text-red-700 dark:text-red-300">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -262,15 +262,15 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
           {completedSale ? (
             /* COMPLETED RECEIPT VIEW */
             <div className="p-6 overflow-y-auto flex-1 flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8" />
+              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                Sale Completed Successfully!
+              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                Sale Recorded Successfully
               </h3>
 
               {/* Printable Receipt Card */}
-              <div id="printable-receipt" className="w-full max-w-sm bg-slate-50 dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 font-mono text-xs text-left space-y-3 card-3d">
+              <div id="printable-receipt" className="w-full max-w-sm bg-slate-50 dark:bg-slate-900/90 p-4 rounded-md border border-slate-300 dark:border-slate-700 font-mono text-xs text-left space-y-2.5 card-3d">
                 <div className="text-center border-b border-dashed border-slate-300 dark:border-slate-600 pb-2">
                   <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
                     RETAIL'S GM RECEIPT
@@ -373,7 +373,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                 </div>
 
                 {/* Available Products Grid for one-click add */}
-                <div className="border border-slate-200 dark:border-slate-700 rounded-2xl p-3 bg-slate-50/60 dark:bg-slate-900/40">
+                <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50/60 dark:bg-slate-900/40">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
                     Quick Add to Cart (Click to Add)
                   </span>
@@ -432,7 +432,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
               </div>
 
               {/* Right Column: Active Cart & Ring Up */}
-              <div className="md:col-span-5 flex flex-col justify-between bg-slate-50 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+              <div className="md:col-span-5 flex flex-col justify-between bg-slate-50 dark:bg-slate-900/60 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
                     <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">

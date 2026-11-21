@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Barcode, Camera, Upload, Sparkles, AlertCircle, RefreshCw } from 'lucide-react';
+import { X, Plus, Barcode, Camera, Upload, ScanLine, FileText, AlertCircle, RefreshCw } from 'lucide-react';
 import { extractProductDetailsFromImage } from '../../services/ocrService';
 import { BarcodeScannerModal } from '../common/BarcodeScannerModal';
 import { OcrVerificationModal } from './OcrVerificationModal';
@@ -161,79 +161,79 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 overflow-y-auto">
+        <div className="bg-white dark:bg-slate-800 rounded-lg w-full max-w-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto max-h-[92vh] flex flex-col">
           
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-brand-50/60 dark:bg-slate-800">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
             <div className="flex items-center space-x-2">
-              <span className="p-1.5 bg-brand-600 text-white rounded-lg">
+              <span className="p-1.5 bg-brand-600 text-white rounded-md">
                 <Plus className="w-4 h-4" />
               </span>
               <div>
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
-                  Add New Product
+                <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+                  Add Product & Stock Batch
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Add manually, scan a barcode, or upload a product label for AI OCR.
+                  Enter details manually, scan barcode, or upload label photo.
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="p-1.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Mode Tabs */}
-          <div className="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 px-6">
+          <div className="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/40 px-5">
             <button
               onClick={() => setActiveMode('manual')}
-              className={`py-3 px-4 text-xs sm:text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${
+              className={`py-2.5 px-3.5 text-xs font-semibold border-b-2 transition-colors flex items-center gap-1.5 ${
                 activeMode === 'manual'
                   ? 'border-brand-600 text-brand-600 dark:text-brand-400 bg-white dark:bg-slate-800'
                   : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
               Manual & Barcode Entry
             </button>
             <button
               onClick={() => setActiveMode('ocr')}
-              className={`py-3 px-4 text-xs sm:text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${
+              className={`py-2.5 px-3.5 text-xs font-semibold border-b-2 transition-colors flex items-center gap-1.5 ${
                 activeMode === 'ocr'
                   ? 'border-brand-600 text-brand-600 dark:text-brand-400 bg-white dark:bg-slate-800'
                   : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <Sparkles className="w-4 h-4 text-brand-500" />
-              AI Label OCR Scan
+              <ScanLine className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
+              Scan Label Photo
             </button>
           </div>
 
           {error && (
-            <div className="mx-6 mt-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-2 text-sm text-red-700 dark:text-red-300">
+            <div className="mx-5 mt-3 p-2.5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-md flex items-center gap-2 text-xs text-red-700 dark:text-red-300">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Content Body */}
-          <div className="p-6 overflow-y-auto flex-1">
+          <div className="p-5 overflow-y-auto flex-1">
             {activeMode === 'ocr' ? (
-              /* AI OCR Mode */
-              <div className="space-y-6">
-                <div className="border-2 border-dashed border-brand-300 dark:border-brand-700 rounded-2xl p-6 sm:p-10 text-center bg-brand-50/20 dark:bg-brand-950/10 hover:bg-brand-50/40 transition-colors">
-                  <div className="w-14 h-14 mx-auto mb-3 bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-300 rounded-2xl flex items-center justify-center">
-                    <Sparkles className="w-7 h-7" />
+              /* Label Photo Scanner Mode */
+              <div className="space-y-4">
+                <div className="border border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 sm:p-8 text-center bg-slate-50/50 dark:bg-slate-900/20 hover:bg-slate-50 transition-colors">
+                  <div className="w-12 h-12 mx-auto mb-3 bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 rounded-lg flex items-center justify-center border border-brand-200 dark:border-brand-900">
+                    <Camera className="w-6 h-6" />
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
-                    Upload Product Package Label
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">
+                    Upload Product Package Photo
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-5">
-                    Our AI OCR extracts product name, brand, expiry date, MRP, and batch number automatically from the packaging image.
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
+                    Reads product name, brand, expiry date, MRP, and batch number directly from the packaging label.
                   </p>
 
                   {isProcessingOcr ? (
@@ -252,9 +252,9 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                     </div>
                   ) : (
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                      <label className="cursor-pointer px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-sm">
+                      <label className="cursor-pointer px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 btn-3d-brand">
                         <Upload className="w-4 h-4" />
-                        <span>Select Image File</span>
+                        <span>Upload Label File</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -262,7 +262,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                           onChange={handleImageUpload}
                         />
                       </label>
-                      <label className="cursor-pointer px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-xl text-sm font-medium transition-colors flex items-center gap-2">
+                      <label className="cursor-pointer px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-md text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 btn-3d-secondary border border-slate-300 dark:border-slate-600">
                         <Camera className="w-4 h-4" />
                         <span>Take Photo (Camera)</span>
                         <input
@@ -277,14 +277,14 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                   )}
                 </div>
 
-                <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                    Tips for Best OCR Results
+                <div className="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-md border border-slate-200 dark:border-slate-700">
+                  <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                    Scanning Recommendations
                   </h4>
                   <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-1 list-disc pl-4">
-                    <li>Ensure good lighting without heavy reflections on plastic pouches.</li>
-                    <li>Align the portion of the package showing EXP, MFD, BATCH, and MRP.</li>
-                    <li>You will be able to review and correct every field before anything is saved.</li>
+                    <li>Hold the camera steady under clear lighting.</li>
+                    <li>Align the text area showing EXP, MFD, BATCH, and MRP.</li>
+                    <li>All scanned fields can be edited and verified before saving.</li>
                   </ul>
                 </div>
               </div>
@@ -292,7 +292,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
               /* Manual & Barcode Mode */
               <form onSubmit={handleManualSubmit} className="space-y-4">
                 {/* Barcode scanner quick trigger */}
-                <div className="p-3 bg-brand-50/50 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-900/60 rounded-xl flex items-center justify-between">
+                <div className="p-3 bg-brand-50/50 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-900/60 rounded-md flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Barcode className="w-5 h-5 text-brand-600 dark:text-brand-400" />
                     <div>
@@ -307,7 +307,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowBarcodeScanner(true)}
-                    className="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1"
+                    className="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-md text-xs font-semibold transition-colors flex items-center gap-1 btn-3d-brand"
                   >
                     <Camera className="w-3.5 h-3.5" />
                     <span>Open Scanner</span>

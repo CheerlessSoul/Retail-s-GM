@@ -171,19 +171,19 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
         {/* Expired Card */}
         <div
           onClick={() => setFilterMode('expired')}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer card-3d-hover ${
+          className={`p-3.5 rounded-lg border transition-all cursor-pointer card-3d-hover ${
             filterMode === 'expired'
-              ? 'bg-red-50 dark:bg-red-950/40 border-red-400 ring-2 ring-red-400/40'
+              ? 'bg-red-50 dark:bg-red-950/40 border-red-500'
               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-red-300'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
-              Expired (Quarantined)
+            <span className="text-[11px] font-bold uppercase tracking-wider text-red-700 dark:text-red-400">
+              Quarantined Expired
             </span>
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-red-700 dark:text-red-300 mt-2">
+          <div className="text-xl sm:text-2xl font-extrabold text-red-700 dark:text-red-300 mt-1.5">
             {expiredBatches.length} <span className="text-xs font-normal text-slate-500">batches</span>
           </div>
           <div className="text-xs text-red-600 dark:text-red-400 mt-1">
@@ -194,19 +194,19 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
         {/* Urgent Card (<7 Days) */}
         <div
           onClick={() => setFilterMode('urgent')}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer card-3d-hover ${
+          className={`p-3.5 rounded-lg border transition-all cursor-pointer card-3d-hover ${
             filterMode === 'urgent'
-              ? 'bg-orange-50 dark:bg-orange-950/40 border-orange-400 ring-2 ring-orange-400/40'
+              ? 'bg-orange-50 dark:bg-orange-950/40 border-orange-500'
               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-orange-300'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400">
               Expiring in &le; 7 Days
             </span>
             <AlertTriangle className="w-4 h-4 text-orange-500" />
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-orange-600 dark:text-orange-400 mt-2">
+          <div className="text-xl sm:text-2xl font-extrabold text-orange-600 dark:text-orange-400 mt-1.5">
             {urgentBatches.length} <span className="text-xs font-normal text-slate-500">batches</span>
           </div>
           <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
@@ -217,19 +217,19 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
         {/* Warning Card (<30 Days) */}
         <div
           onClick={() => setFilterMode('warning')}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer card-3d-hover ${
+          className={`p-3.5 rounded-lg border transition-all cursor-pointer card-3d-hover ${
             filterMode === 'warning'
-              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-400 ring-2 ring-amber-400/40'
+              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500'
               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-amber-300'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
               Expiring in &le; 30 Days
             </span>
             <Clock className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-2">
+          <div className="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-1.5">
             {warningBatches.length} <span className="text-xs font-normal text-slate-500">batches</span>
           </div>
           <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -240,19 +240,19 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
         {/* Safe Stock */}
         <div
           onClick={() => setFilterMode('safe')}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer card-3d-hover ${
+          className={`p-3.5 rounded-lg border transition-all cursor-pointer card-3d-hover ${
             filterMode === 'safe'
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-brand-500 ring-2 ring-brand-500/40'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-brand-600'
               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-brand-300'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
               Fresh & Safe Stock
             </span>
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-2">
+          <div className="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1.5">
             {safeBatches.length} <span className="text-xs font-normal text-slate-500">batches</span>
           </div>
           <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -262,7 +262,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
       </div>
 
       {/* Filter Tabs & Search */}
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 card-3d">
+      <div className="bg-white dark:bg-slate-800 p-3.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm space-y-2.5 card-3d">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           
           {/* Status Tabs */}
@@ -348,7 +348,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
       </div>
 
       {/* Batch Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
@@ -522,16 +522,16 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
 
       {/* Clearance Discount Modal */}
       {clearanceModalBatch && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
+          <div className="bg-white dark:bg-slate-800 rounded-lg w-full max-w-md p-5 shadow-xl border border-slate-200 dark:border-slate-700 space-y-3">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
               Apply Clearance Discount (FEFO)
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Clear stock quickly before expiry date ({clearanceModalBatch.batch.expiryDate}).
             </p>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl space-y-1 text-xs">
+            <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-md space-y-1 text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-500">Product:</span>
                 <span className="font-semibold text-slate-800 dark:text-slate-200">{clearanceModalBatch.product.name}</span>

@@ -36,7 +36,7 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
 
   return (
     <div
-      className={`pointer-events-auto p-3.5 rounded-xl border shadow-xl flex items-start gap-3 transition-all duration-300 transform translate-y-0 animate-in fade-in slide-in-from-top-2 card-3d ${
+      className={`pointer-events-auto p-3 rounded-md border shadow-md flex items-start gap-2.5 transition-all duration-200 card-3d ${
         toast.type === 'success'
           ? 'bg-emerald-50 dark:bg-emerald-950/90 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100'
           : toast.type === 'error'

@@ -208,11 +208,11 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total SKUs */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+        <div className="p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
+          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
             Total Inventory
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-2">
+          <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-1.5">
             {totalUnits} <span className="text-xs font-normal text-slate-500">units</span>
           </div>
           <div className="text-xs text-slate-500 mt-1">
@@ -223,19 +223,19 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         {/* Low Stock Alert */}
         <div
           onClick={() => setActiveTab('low_stock')}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer card-3d-hover ${
+          className={`p-3.5 rounded-lg border transition-all cursor-pointer card-3d-hover ${
             activeTab === 'low_stock'
-              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-400 ring-2 ring-amber-400/40'
+              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500'
               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-amber-300'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
               Low Stock Warnings
             </span>
             <AlertTriangle className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-2">
+          <div className="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-1.5">
             {lowStockProducts.length} <span className="text-xs font-normal text-slate-500">items</span>
           </div>
           <div className="text-xs text-amber-600 dark:text-amber-400 mt-1">
@@ -244,11 +244,11 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         </div>
 
         {/* Total Cost Valuation */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+        <div className="p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
+          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
             Stock Value (Cost)
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-2">
+          <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-1.5">
             {currency}{totalCostValuation.toFixed(0)}
           </div>
           <div className="text-xs text-slate-500 mt-1">
@@ -257,11 +257,11 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         </div>
 
         {/* Retail Valuation */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
-          <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider block">
+        <div className="p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
+          <span className="text-[11px] font-bold text-brand-700 dark:text-brand-400 uppercase tracking-wider block">
             Retail Value (Selling)
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-brand-600 dark:text-brand-400 mt-2">
+          <div className="text-xl sm:text-2xl font-extrabold text-brand-600 dark:text-brand-400 mt-1.5">
             {currency}{totalRetailValuation.toFixed(0)}
           </div>
           <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
@@ -271,7 +271,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
       </div>
 
       {/* Tabs & Search */}
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 card-3d">
+      <div className="bg-white dark:bg-slate-800 p-3.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm space-y-2.5 card-3d">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           
           {/* Tab buttons */}
@@ -340,7 +340,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
       {/* Content based on Active Tab */}
       {activeTab === 'history' ? (
         /* STOCK HISTORY AUDIT TRAIL TABLE */
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
           <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
             <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
               Audit History Log ({filteredHistory.length} events)
@@ -433,7 +433,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         </div>
       ) : (
         /* LIVE INVENTORY & LOW STOCK TABLE */
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
@@ -540,8 +540,8 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
       {/* Adjust Stock Modal */}
       {adjustModalProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
+          <div className="bg-white dark:bg-slate-800 rounded-lg w-full max-w-md p-5 shadow-xl border border-slate-200 dark:border-slate-700 space-y-3">
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
               Adjust Stock Level
             </h3>
@@ -669,8 +669,8 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
       {/* Quick Restock New Batch Modal */}
       {quickRestockProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
+          <div className="bg-white dark:bg-slate-800 rounded-lg w-full max-w-md p-5 shadow-xl border border-slate-200 dark:border-slate-700 space-y-3">
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
               Restock New Batch
             </h3>

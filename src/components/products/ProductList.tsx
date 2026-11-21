@@ -3,7 +3,6 @@ import {
   Plus, 
   Search, 
   Barcode, 
-  Sparkles, 
   Filter, 
   AlertTriangle, 
   CheckCircle, 
@@ -127,20 +126,20 @@ export const ProductList: React.FC<ProductListProps> = ({
   return (
     <div className="space-y-5">
       {/* Top Action Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-2 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            Product Management
+          <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+            Product Directory
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Add products manually, scan barcodes, or upload label photos with AI OCR.
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Catalog products, track batch expiries, scan barcodes, or import packaging details.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowBarcodeScanner(true)}
-            className="px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors flex items-center gap-1.5 shadow-sm"
+            className="px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors flex items-center gap-1.5 btn-3d-secondary"
           >
             <Barcode className="w-4 h-4 text-brand-600 dark:text-brand-400" />
             <span className="hidden xs:inline">Scan Code</span>
@@ -148,7 +147,7 @@ export const ProductList: React.FC<ProductListProps> = ({
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition-all flex items-center gap-1.5 btn-3d-brand"
+            className="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-md transition-all flex items-center gap-1.5 btn-3d-brand"
           >
             <Plus className="w-4 h-4" />
             <span>Add Product</span>
@@ -157,8 +156,8 @@ export const ProductList: React.FC<ProductListProps> = ({
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 card-3d">
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div className="bg-white dark:bg-slate-800 p-3 sm:p-3.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm space-y-2.5 card-3d">
+        <div className="flex flex-col sm:flex-row gap-2.5 items-center justify-between">
           
           {/* Search Box */}
           <div className="relative w-full sm:w-80">
@@ -168,33 +167,33 @@ export const ProductList: React.FC<ProductListProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name, brand, or barcode..."
-              className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50/70 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center space-x-1 self-end sm:self-auto bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl">
+          <div className="flex items-center space-x-1 self-end sm:self-auto bg-slate-100 dark:bg-slate-900/50 p-0.5 rounded-md border border-slate-200 dark:border-slate-700">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-lg text-xs transition-colors ${
+              className={`p-1.5 rounded text-xs transition-colors ${
                 viewMode === 'grid'
-                  ? 'bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 shadow-sm'
+                  ? 'bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-sm'
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
               }`}
               title="Grid View"
             >
-              <LayoutGrid className="w-4 h-4" />
+              <LayoutGrid className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded-lg text-xs transition-colors ${
+              className={`p-1.5 rounded text-xs transition-colors ${
                 viewMode === 'table'
-                  ? 'bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 shadow-sm'
+                  ? 'bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-sm'
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
               }`}
               title="Table View"
             >
-              <List className="w-4 h-4" />
+              <List className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -205,10 +204,10 @@ export const ProductList: React.FC<ProductListProps> = ({
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors ${
+              className={`px-2.5 py-1 rounded-md font-medium whitespace-nowrap transition-colors border ${
                 selectedCategory === cat
-                  ? 'bg-brand-600 text-white shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-750 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? 'bg-brand-600 text-white border-brand-600 shadow-sm'
+                  : 'bg-slate-50 dark:bg-slate-750 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
               }`}
             >
               {cat}
@@ -219,7 +218,7 @@ export const ProductList: React.FC<ProductListProps> = ({
 
       {/* Product Display List */}
       {filteredProducts.length === 0 ? (
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 text-center">
           <Tag className="w-10 h-10 text-slate-400 mx-auto mb-2" />
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">No products found</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
@@ -237,7 +236,7 @@ export const ProductList: React.FC<ProductListProps> = ({
               <div
                 key={product.id}
                 onClick={() => setSelectedProduct(product)}
-                className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 card-3d-hover hover:border-brand-500/50 cursor-pointer flex flex-col justify-between group"
+                className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3.5 card-3d-hover hover:border-brand-500/50 cursor-pointer flex flex-col justify-between group"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-2">
@@ -276,19 +275,19 @@ export const ProductList: React.FC<ProductListProps> = ({
         </div>
       ) : (
         /* TABLE VIEW */
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3">Product Name</th>
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">Barcode</th>
-                  <th className="px-4 py-3">Stock</th>
-                  <th className="px-4 py-3">Cost</th>
-                  <th className="px-4 py-3">Selling Price</th>
-                  <th className="px-4 py-3">Next Expiry</th>
-                  <th className="px-4 py-3 text-right">Action</th>
+                  <th className="px-3.5 py-2.5">Product Name</th>
+                  <th className="px-3.5 py-2.5">Category</th>
+                  <th className="px-3.5 py-2.5">Barcode</th>
+                  <th className="px-3.5 py-2.5">Stock</th>
+                  <th className="px-3.5 py-2.5">Cost</th>
+                  <th className="px-3.5 py-2.5">Selling Price</th>
+                  <th className="px-3.5 py-2.5">Next Expiry</th>
+                  <th className="px-3.5 py-2.5 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -302,33 +301,33 @@ export const ProductList: React.FC<ProductListProps> = ({
                       onClick={() => setSelectedProduct(product)}
                       className="hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors cursor-pointer"
                     >
-                      <td className="px-4 py-3">
+                      <td className="px-3.5 py-2.5">
                         <div className="font-semibold text-slate-900 dark:text-slate-100">
                           {product.name}
                         </div>
                         <div className="text-[11px] text-slate-400">{product.brand}</div>
                       </td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                      <td className="px-3.5 py-2.5 text-slate-600 dark:text-slate-400">
                         {product.category}
                       </td>
-                      <td className="px-4 py-3 font-mono text-slate-600 dark:text-slate-400">
-                        {product.barcode || '—'}
+                      <td className="px-3.5 py-2.5 font-mono text-slate-600 dark:text-slate-400">
+                        {product.barcode || '-'}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-3.5 py-2.5">
                         <span className={`font-bold ${isLowStock ? 'text-amber-600' : 'text-slate-800 dark:text-slate-200'}`}>
                           {product.currentStock} {product.unit}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                      <td className="px-3.5 py-2.5 text-slate-600 dark:text-slate-400">
                         {currency}{product.costPrice.toFixed(2)}
                       </td>
-                      <td className="px-4 py-3 font-bold text-brand-600 dark:text-brand-400">
+                      <td className="px-3.5 py-2.5 font-bold text-brand-600 dark:text-brand-400">
                         {currency}{product.sellingPrice.toFixed(2)}
                       </td>
-                      <td className="px-4 py-3">
-                        {earliest ? getExpiryBadge(earliest.expiryDate) : '—'}
+                      <td className="px-3.5 py-2.5">
+                        {earliest ? getExpiryBadge(earliest.expiryDate) : '-'}
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-3.5 py-2.5 text-right">
                         <span className="text-brand-600 dark:text-brand-400 font-medium inline-flex items-center gap-0.5">
                           Details <ChevronRight className="w-3.5 h-3.5" />
                         </span>

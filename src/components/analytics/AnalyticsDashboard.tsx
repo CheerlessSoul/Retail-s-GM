@@ -200,15 +200,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Top Header & Range Filters */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-2 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            Business Analytics & Profit
+          <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+            Sales & Profit Ledger
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Real-time sales, estimated gross profit, expenses (COGS), and business performance charts.
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Recorded revenue, cost of goods, gross profit margins, and inventory performance.
           </p>
         </div>
 
@@ -218,26 +218,26 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             onClick={handleExportSalesCsv}
             disabled={filteredSales.length === 0}
             title="Download Sales & Profit Report as CSV"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 btn-3d-secondary text-xs disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 btn-3d-secondary text-xs disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <Download className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
             <span className="font-semibold">Export CSV</span>
           </button>
 
-          {/* Time Filter Pills */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs shadow-inner">
+          {/* Time Filter Tabs */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-md text-xs border border-slate-200 dark:border-slate-700">
             {[
               { id: 'today', label: 'Today' },
-              { id: '7days', label: 'Last 7 Days' },
+              { id: '7days', label: '7 Days' },
               { id: 'month', label: 'This Month' },
-              { id: 'all', label: 'All Time' },
+              { id: 'all', label: 'All Records' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setTimeRange(tab.id as typeof timeRange)}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                className={`px-2.5 py-1 rounded text-xs transition-all ${
                   timeRange === tab.id
-                    ? 'bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-sm font-semibold'
+                    ? 'bg-white dark:bg-slate-700 text-brand-700 dark:text-brand-300 shadow-sm font-semibold'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
@@ -248,133 +248,108 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </div>
       </div>
 
-      {/* Main Metric Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Total Sales Revenue */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 card-3d-hover">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Total Sales
-            </span>
-            <span className="p-1.5 rounded-lg bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 shadow-inner">
-              <ShoppingBag className="w-4 h-4" />
-            </span>
+      {/* Merchant Financial Cockpit - Asymmetric, Purposeful Hierarchy */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Primary Financial Ledger Card (2 cols on md+) */}
+        <div className="md:col-span-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 sm:p-5 card-3d">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/80">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Revenue & Net Earnings
+              </span>
+              <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">
+                {currency}{totalSalesRevenue.toFixed(2)}
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                Gross Margin
+              </span>
+              <div className="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                {profitMarginPercent}%
+              </div>
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-brand-600 dark:text-brand-400 mt-2">
-            {currency}{totalSalesRevenue.toFixed(0)}
-          </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Across {totalOrders} customer transactions
+
+          <div className="grid grid-cols-2 gap-4 pt-3 text-xs">
+            <div className="p-2.5 rounded bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
+              <div className="text-slate-500 dark:text-slate-400 font-medium">Estimated Gross Profit</div>
+              <div className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                +{currency}{totalEstimatedProfit.toFixed(2)}
+              </div>
+              <div className="text-[10px] text-slate-400 mt-0.5">Sales minus product cost</div>
+            </div>
+            <div className="p-2.5 rounded bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
+              <div className="text-slate-500 dark:text-slate-400 font-medium">Cost of Goods Sold (COGS)</div>
+              <div className="text-base sm:text-lg font-bold text-slate-700 dark:text-slate-300 mt-0.5">
+                {currency}{totalCostExpenses.toFixed(2)}
+              </div>
+              <div className="text-[10px] text-slate-400 mt-0.5">Wholesale purchase value</div>
+            </div>
           </div>
         </div>
 
-        {/* Estimated Gross Profit */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 card-3d-hover">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-              Estimated Profit
+        {/* Operational Volume & Ticket Card (1 col) */}
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 sm:p-5 card-3d flex flex-col justify-between">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Transaction Volume
             </span>
-            <span className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 shadow-inner">
-              <TrendingUp className="w-4 h-4" />
-            </span>
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">
+              {totalOrders} <span className="text-xs font-normal text-slate-500">receipts</span>
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-2">
-            {currency}{totalEstimatedProfit.toFixed(0)}
-          </div>
-          <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-            {profitMarginPercent}% profit margin on sales
-          </div>
-        </div>
 
-        {/* Estimated Expenses / COGS */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 card-3d-hover">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Product Expenses (COGS)
-            </span>
-            <span className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shadow-inner">
-              <DollarSign className="w-4 h-4" />
-            </span>
-          </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-2">
-            {currency}{totalCostExpenses.toFixed(0)}
-          </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Purchase cost of goods sold
-          </div>
-        </div>
-
-        {/* Average Order Value */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 card-3d-hover">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Avg Receipt Value
-            </span>
-            <span className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shadow-inner">
-              <Percent className="w-4 h-4" />
-            </span>
-          </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-2">
-            {currency}{avgOrderValue.toFixed(0)}
-          </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Average customer basket size
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-700/80 mt-3">
+            <div className="text-xs text-slate-500 dark:text-slate-400">Average Basket Size</div>
+            <div className="text-lg font-bold text-brand-600 dark:text-brand-400 mt-0.5">
+              {currency}{avgOrderValue.toFixed(2)}
+            </div>
+            <div className="text-[10px] text-slate-400">Average billing per customer</div>
           </div>
         </div>
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Sales & Profit Trend (2 columns) */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-                Sales & Estimated Profit Trend
+                Daily Sales & Profit
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Daily comparison of gross sales revenue vs net earnings
+                Recorded sales revenue compared with net earnings by date
               </p>
             </div>
-            <BarChart3 className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+            <BarChart3 className="w-4 h-4 text-slate-500" />
           </div>
 
-          <div className="h-64 w-full">
+          <div className="h-60 w-full">
             {trendData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#059669" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#059669" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                  <XAxis dataKey="displayDate" fontSize={11} stroke="#94a3b8" />
-                  <YAxis fontSize={11} stroke="#94a3b8" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.5} />
+                  <XAxis dataKey="displayDate" fontSize={11} stroke="#64748b" tickLine={false} />
+                  <YAxis fontSize={11} stroke="#64748b" tickLine={false} />
                   <Tooltip
                     formatter={(val: any) => [`${currency}${Number(val || 0).toFixed(2)}`]}
                     contentStyle={{
-                      backgroundColor: '#1e293b',
+                      backgroundColor: '#0f172a',
                       borderColor: '#334155',
-                      borderRadius: '0.75rem',
+                      borderRadius: '0.375rem',
                       color: '#f8fafc',
                       fontSize: '12px',
                     }}
                   />
-                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
                   <Area
                     type="monotone"
                     dataKey="revenue"
                     name="Sales Revenue"
                     stroke="#059669"
-                    fillOpacity={1}
-                    fill="url(#colorRevenue)"
+                    fill="#ecfdf5"
                     strokeWidth={2}
                   />
                   <Area
@@ -382,8 +357,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                     dataKey="profit"
                     name="Estimated Profit"
                     stroke="#10B981"
-                    fillOpacity={1}
-                    fill="url(#colorProfit)"
+                    fill="#d1fae5"
                     strokeWidth={2}
                   />
                 </AreaChart>
@@ -397,20 +371,20 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </div>
 
         {/* Category Contribution (1 column) */}
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+        <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-                Revenue by Category
+                Sales by Category
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Top sales drivers by product type
+                Product category revenue breakdown
               </p>
             </div>
-            <PieChart className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+            <PieChart className="w-4 h-4 text-slate-500" />
           </div>
 
-          <div className="h-64 w-full flex items-center justify-center">
+          <div className="h-60 w-full flex items-center justify-center">
             {categoryData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPie>
@@ -418,9 +392,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                     data={categoryData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={3}
+                    innerRadius={45}
+                    outerRadius={75}
+                    paddingAngle={2}
                     dataKey="value"
                   >
                     {categoryData.map((entry, index) => (
@@ -430,8 +404,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   <Tooltip
                     formatter={(val: any) => [`${currency}${Number(val || 0).toFixed(2)}`, 'Sales']}
                     contentStyle={{
-                      backgroundColor: '#1e293b',
-                      borderRadius: '0.75rem',
+                      backgroundColor: '#0f172a',
+                      borderRadius: '0.375rem',
                       color: '#f8fafc',
                       fontSize: '12px',
                     }}
@@ -446,33 +420,33 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </div>
       </div>
 
-      {/* Stock Health Breakdown Chart */}
-      <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+      {/* Stock Health Breakdown */}
+      <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-              Inventory & Shelf Health Breakdown
+              Inventory Shelf Health Breakdown
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Distribution of fresh stock, low stock thresholds, and quarantined expired units
+              Distribution of fresh stock, low stock thresholds, and quarantined units
             </p>
           </div>
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
-            Real-Time
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+            Current Stock Status
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-          <div className="h-56 w-full flex items-center justify-center">
+          <div className="h-52 w-full flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <RechartsPie>
                 <Pie
                   data={inventoryHealth}
                   cx="50%"
                   cy="50%"
-                  innerRadius={45}
-                  outerRadius={75}
-                  paddingAngle={3}
+                  innerRadius={40}
+                  outerRadius={70}
+                  paddingAngle={2}
                   dataKey="value"
                 >
                   {inventoryHealth.map((entry, index) => (
@@ -482,8 +456,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 <Tooltip
                   formatter={(val: any) => [`${val} units`, 'Quantity']}
                   contentStyle={{
-                    backgroundColor: '#1e293b',
-                    borderRadius: '0.75rem',
+                    backgroundColor: '#0f172a',
+                    borderRadius: '0.375rem',
                     color: '#f8fafc',
                     fontSize: '12px',
                   }}
@@ -493,14 +467,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="grid grid-cols-2 gap-2.5 text-xs">
             {inventoryHealth.map((item, idx) => (
-              <div key={idx} className="p-3 rounded-xl border border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/30">
+              <div key={idx} className="p-2.5 rounded border border-slate-200 dark:border-slate-700/80 bg-slate-50/70 dark:bg-slate-900/30">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="font-medium text-slate-600 dark:text-slate-300">{item.name}</span>
+                  <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }} />
+                  <span className="font-medium text-slate-600 dark:text-slate-300 text-[11px]">{item.name}</span>
                 </div>
-                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{item.value} units</span>
+                <span className="text-base font-bold text-slate-900 dark:text-slate-100">{item.value} units</span>
               </div>
             ))}
           </div>
@@ -508,27 +482,27 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       </div>
 
       {/* Best-Selling Products Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="p-3.5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+            <Award className="w-4 h-4 text-brand-600 dark:text-brand-400" />
             <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-              Best-Selling Products
+              Top-Selling Products
             </h3>
           </div>
-          <span className="text-xs text-slate-500">Ranked by volume sold</span>
+          <span className="text-xs text-slate-500">Sorted by volume sold</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="px-4 py-3">Rank</th>
-                <th className="px-4 py-3">Product Name</th>
-                <th className="px-4 py-3">Units Sold</th>
-                <th className="px-4 py-3">Total Revenue</th>
-                <th className="px-4 py-3">Estimated Profit</th>
-                <th className="px-4 py-3">Margin</th>
+                <th className="px-3.5 py-2.5">Rank</th>
+                <th className="px-3.5 py-2.5">Product Name</th>
+                <th className="px-3.5 py-2.5">Units Sold</th>
+                <th className="px-3.5 py-2.5">Total Revenue</th>
+                <th className="px-3.5 py-2.5">Estimated Profit</th>
+                <th className="px-3.5 py-2.5">Margin</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -536,30 +510,24 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 const margin = item.revenue > 0 ? Math.round((item.profit / item.revenue) * 100) : 0;
                 return (
                   <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
-                    <td className="px-4 py-3">
-                      <span className={`w-5 h-5 rounded-full inline-flex items-center justify-center font-bold text-[10px] ${
-                        index === 0
-                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
-                          : index === 1
-                          ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
-                          : 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300'
-                      }`}>
+                    <td className="px-3.5 py-2.5">
+                      <span className="font-mono text-xs font-semibold text-slate-500">
                         #{index + 1}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">
+                    <td className="px-3.5 py-2.5 font-semibold text-slate-900 dark:text-slate-100">
                       {item.name}
                     </td>
-                    <td className="px-4 py-3 font-bold text-slate-800 dark:text-slate-200">
+                    <td className="px-3.5 py-2.5 font-bold text-slate-800 dark:text-slate-200">
                       {item.quantity} units
                     </td>
-                    <td className="px-4 py-3 font-semibold text-brand-600 dark:text-brand-400">
+                    <td className="px-3.5 py-2.5 font-semibold text-brand-600 dark:text-brand-400">
                       {currency}{item.revenue.toFixed(2)}
                     </td>
-                    <td className="px-4 py-3 font-semibold text-emerald-600 dark:text-emerald-400">
+                    <td className="px-3.5 py-2.5 font-semibold text-emerald-600 dark:text-emerald-400">
                       {currency}{item.profit.toFixed(2)}
                     </td>
-                    <td className="px-4 py-3 font-bold text-slate-700 dark:text-slate-300">
+                    <td className="px-3.5 py-2.5 font-bold text-slate-700 dark:text-slate-300">
                       {margin}%
                     </td>
                   </tr>

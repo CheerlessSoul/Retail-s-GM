@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, X, Sparkles, AlertCircle, Calendar, Hash, Tag, IndianRupee, Layers } from 'lucide-react';
+import { Check, X, FileText, AlertCircle, Calendar, Hash, Tag, IndianRupee, Layers } from 'lucide-react';
 import type { OcrExtractedData } from '../../types';
 
 interface OcrVerificationModalProps {
@@ -88,45 +88,45 @@ export const OcrVerificationModal: React.FC<OcrVerificationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-4xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 overflow-y-auto">
+      <div className="bg-white dark:bg-slate-800 rounded-lg w-full max-w-4xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto max-h-[92vh] flex flex-col">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-brand-50/60 dark:bg-slate-800">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
           <div className="flex items-center space-x-2">
-            <span className="p-1.5 bg-brand-600 text-white rounded-lg">
-              <Sparkles className="w-4 h-4" />
+            <span className="p-1.5 bg-brand-600 text-white rounded-md">
+              <FileText className="w-4 h-4" />
             </span>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
-                Verify AI Extracted Product Information
+              <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+                Verify Scanned Label Details
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Review the OCR detected fields against your label image and edit if needed.
+                Review detected fields against the packaging photo and correct any details before saving.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+            className="p-1.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {error && (
-          <div className="mx-6 mt-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-2 text-sm text-red-700 dark:text-red-300">
+          <div className="mx-5 mt-3 p-2.5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-md flex items-center gap-2 text-xs text-red-700 dark:text-red-300">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {/* Content Body: Two columns on medium/large screens */}
-        <div className="p-6 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="p-5 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-12 gap-5">
           
           {/* Left Column: Image Preview & Raw Extracted Text */}
-          <div className="md:col-span-5 flex flex-col space-y-4">
-            <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div className="md:col-span-5 flex flex-col space-y-3">
+            <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-md border border-slate-200 dark:border-slate-700">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
                 Original Label Image
               </span>
