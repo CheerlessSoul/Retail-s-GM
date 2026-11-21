@@ -3,8 +3,18 @@
  */
 class SoundService {
   private ctx: AudioContext | null = null;
+  private enabled: boolean = true;
+
+  setEnabled(enabled: boolean) {
+    this.enabled = enabled;
+  }
+
+  getIsEnabled(): boolean {
+    return this.enabled;
+  }
 
   private getContext(): AudioContext | null {
+    if (!this.enabled) return null;
     if (typeof window === 'undefined') return null;
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -22,6 +32,7 @@ class SoundService {
    * Classic POS barcode scanner beep
    */
   playScannerBeep() {
+    if (!this.enabled) return;
     try {
       const ctx = this.getContext();
       if (!ctx) return;
@@ -30,7 +41,7 @@ class SoundService {
       const gain = ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(1850, ctx.currentTime); // 1850 Hz classic scanner tone
+      osc.frequency.setValueAtTime(1850, ctx.currentTime);
       gain.gain.setValueAtTime(0.15, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
 
@@ -48,6 +59,7 @@ class SoundService {
    * Cash register / transaction success chime
    */
   playSuccessChime() {
+    if (!this.enabled) return;
     try {
       const ctx = this.getContext();
       if (!ctx) return;
@@ -77,6 +89,7 @@ class SoundService {
    * Warning / error buzz
    */
   playAlertBuzz() {
+    if (!this.enabled) return;
     try {
       const ctx = this.getContext();
       if (!ctx) return;

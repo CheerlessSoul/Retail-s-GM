@@ -28,6 +28,35 @@ export class RetailDatabase extends Dexie {
   }
 
   /**
+   * Helper to parse date string into local midnight Date avoiding UTC midnight drift
+   */
+  parseLocalDate(dateStr: string): Date {
+    const parts = dateStr.split(/[-/]/).map(Number);
+    if (parts.length === 3 && parts[0] > 1900) {
+      return new Date(parts[0], parts[1] - 1, parts[2], 0, 0, 0, 0);
+    }
+    const d = new Date(dateStr);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  /**
+   * Compute status based on expiry date string
+   */
+  computeBatchStatus(expiryDateStr: string): 'active' | 'expiring_soon' | 'expired' {
+    if (!expiryDateStr) return 'active';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const expiry = this.parseLocalDate(expiryDateStr);
+    const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 0) return 'expired';
+    if (diffDays <= 30) return 'expiring_soon';
+    return 'active';
+  }
+
+  /**
    * Helper to add a new product along with its initial batch
    */
   async addProductWithBatch(
@@ -196,7 +225,7 @@ export class RetailDatabase extends Dexie {
   }
 
   /**
-   * Process a sale transaction with FEFO batch allocation
+   * Process a sale transaction with strict FEFO allocation and non-expired stock guarantees
    */
   async processSale(
     cartItems: { productId: string; quantity: number }[],
@@ -210,12 +239,13 @@ export class RetailDatabase extends Dexie {
     let totalAmount = 0;
     let totalCost = 0;
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     await this.transaction('rw', this.products, this.batches, this.stockHistory, this.sales, async () => {
       for (const item of cartItems) {
         const product = await this.products.get(item.productId);
         if (!product) throw new Error(`Product ${item.productId} not found`);
-
-        let remainingToDeduct = item.quantity;
 
         // Fetch batches sorted by expiryDate ascending (FEFO - First Expire First Out)
         const batches = await this.batches
@@ -223,19 +253,27 @@ export class RetailDatabase extends Dexie {
           .equals(item.productId)
           .toArray();
 
-        // Sort active/available batches by earliest expiry date
+        // Strictly filter to valid, non-expired, active batches
         const validBatches = batches
-          .filter(b => b.quantity > 0 && b.status !== 'disposed' && b.status !== 'expired')
+          .filter((b) => {
+            if (b.quantity <= 0 || b.status === 'disposed' || b.status === 'expired') return false;
+            const exp = this.parseLocalDate(b.expiryDate);
+            return Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) > 0;
+          })
           .sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
 
-        // Fallback to any batch if all are expired or none marked valid
-        const availableBatches = validBatches.length > 0 ? validBatches : batches.filter(b => b.quantity > 0);
-
-        if (availableBatches.length === 0) {
-          throw new Error(`Insufficient stock for product: ${product.name}`);
+        // PRE-VALIDATION: Ensure sufficient saleable, non-expired stock exists
+        const totalSaleableAvailable = validBatches.reduce((acc, b) => acc + b.quantity, 0);
+        if (totalSaleableAvailable < item.quantity) {
+          if (totalSaleableAvailable === 0 && batches.some((b) => b.quantity > 0)) {
+            throw new Error(`Cannot sell "${product.name}": All available units are expired and quarantined for customer safety.`);
+          }
+          throw new Error(`Insufficient stock for "${product.name}". Requested: ${item.quantity}, Available: ${totalSaleableAvailable}`);
         }
 
-        for (const batch of availableBatches) {
+        let remainingToDeduct = item.quantity;
+
+        for (const batch of validBatches) {
           if (remainingToDeduct <= 0) break;
 
           const deductFromThisBatch = Math.min(batch.quantity, remainingToDeduct);
@@ -265,6 +303,7 @@ export class RetailDatabase extends Dexie {
           await this.batches.update(batch.id, { quantity: newBatchQty });
         }
 
+        // Deduct from aggregate product stock atomically
         const newProductStock = Math.max(0, product.currentStock - item.quantity);
         await this.products.update(product.id, {
           currentStock: newProductStock,
@@ -302,24 +341,6 @@ export class RetailDatabase extends Dexie {
 
     const savedSale = await this.sales.where('receiptNumber').equals(receiptNumber).first();
     return savedSale!;
-  }
-
-  /**
-   * Compute status based on expiry date string
-   */
-  computeBatchStatus(expiryDateStr: string): 'active' | 'expiring_soon' | 'expired' {
-    if (!expiryDateStr) return 'active';
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const expiry = new Date(expiryDateStr);
-    expiry.setHours(0, 0, 0, 0);
-
-    const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffDays <= 0) return 'expired';
-    if (diffDays <= 30) return 'expiring_soon';
-    return 'active';
   }
 }
 

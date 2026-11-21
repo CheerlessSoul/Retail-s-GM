@@ -111,6 +111,13 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
       setOcrStatusText('Loading image...');
 
       const reader = new FileReader();
+      reader.onerror = () => {
+        setIsProcessingOcr(false);
+        setError('Failed to read image file from disk. Please try another image.');
+      };
+      reader.onabort = () => {
+        setIsProcessingOcr(false);
+      };
       reader.onload = async (event) => {
         const previewUrl = event.target?.result as string;
         setOcrImagePreview(previewUrl);
@@ -154,7 +161,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 flex items-center justify-center p-3 sm:p-5 bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
         <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
           
           {/* Header */}

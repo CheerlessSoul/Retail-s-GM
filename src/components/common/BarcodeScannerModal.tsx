@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useId } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera, X, RefreshCw, Barcode } from 'lucide-react';
 import { sound } from '../../services/soundService';
@@ -19,25 +19,58 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [manualCode, setManualCode] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+  
   const scannerRef = useRef<Html5Qrcode | null>(null);
-  const scannerContainerId = 'html5-qr-reader-container';
+  const isStartingRef = useRef<boolean>(false);
+  const isMountedRef = useRef<boolean>(true);
+  
+  // Unique container ID per instance
+  const reactId = useId().replace(/:/g, '');
+  const containerId = `qr-reader-${reactId}`;
+
+  const stopScanner = async () => {
+    // If scanner is in middle of starting, wait a short tick for start to resolve
+    if (isStartingRef.current) {
+      await new Promise((r) => setTimeout(r, 200));
+    }
+
+    if (scannerRef.current) {
+      try {
+        if (scannerRef.current.isScanning) {
+          await scannerRef.current.stop();
+        }
+        await scannerRef.current.clear();
+      } catch (err) {
+        // Cleanup ignore
+      }
+      scannerRef.current = null;
+    }
+    if (isMountedRef.current) {
+      setIsScanning(false);
+    }
+  };
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     if (!isOpen) {
       stopScanner();
       return;
     }
 
     setCameraError(null);
-    let isMounted = true;
 
-    const startScanner = async () => {
+    const initScanner = async () => {
+      // Yield to let DOM node render
+      await new Promise((r) => setTimeout(r, 250));
+      if (!isMountedRef.current) return;
+
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
       try {
-        // Wait a tick for the container DOM node to render
-        await new Promise((r) => setTimeout(r, 200));
-        if (!isMounted) return;
-
-        const html5QrCode = new Html5Qrcode(scannerContainerId);
+        isStartingRef.current = true;
+        const html5QrCode = new Html5Qrcode(containerId);
         scannerRef.current = html5QrCode;
 
         await html5QrCode.start(
@@ -53,43 +86,35 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
             onScanSuccess(decodedText);
           },
           () => {
-            // scan failure per frame, ignored
+            // Frame-level scan miss, ignored
           }
         );
 
-        if (isMounted) setIsScanning(true);
+        isStartingRef.current = false;
+        if (isMountedRef.current) {
+          setIsScanning(true);
+        } else {
+          // Unmounted while starting
+          stopScanner();
+        }
       } catch (err) {
-        if (isMounted) {
+        isStartingRef.current = false;
+        if (isMountedRef.current) {
           setCameraError(
-            err instanceof Error ? err.message : 'Unable to access camera. Please allow camera permissions or type barcode manually.'
+            err instanceof Error ? err.message : 'Unable to access camera. Please allow camera permissions or enter barcode manually.'
           );
           setIsScanning(false);
         }
       }
     };
 
-    startScanner();
+    initScanner();
 
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
       stopScanner();
     };
-  }, [isOpen]);
-
-  const stopScanner = async () => {
-    if (scannerRef.current) {
-      try {
-        if (scannerRef.current.isScanning) {
-          await scannerRef.current.stop();
-        }
-        await scannerRef.current.clear();
-      } catch {
-        // cleanup ignore
-      }
-      scannerRef.current = null;
-    }
-    setIsScanning(false);
-  };
+  }, [isOpen, containerId]);
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,7 +149,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
         {/* Camera Area */}
         <div className="p-4">
           <div className="relative w-full aspect-[4/3] bg-black rounded-xl overflow-hidden flex items-center justify-center">
-            <div id={scannerContainerId} className="w-full h-full" />
+            <div id={containerId} className="w-full h-full" />
 
             {!isScanning && !cameraError && (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-slate-900/80">

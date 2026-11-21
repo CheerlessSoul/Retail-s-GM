@@ -64,6 +64,17 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   };
 
   const saveEdit = async () => {
+    if (!name.trim()) {
+      alert('Product name cannot be empty.');
+      return;
+    }
+    const cPrice = Number(costPrice) || 0;
+    const sPrice = Number(sellingPrice) || 0;
+    if (cPrice < 0 || sPrice < 0) {
+      alert('Cost price and selling price cannot be negative.');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       await onUpdateProduct({
@@ -72,9 +83,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         brand: brand.trim(),
         category,
         barcode: barcode.trim(),
-        costPrice: Number(costPrice) || 0,
-        sellingPrice: Number(sellingPrice) || 0,
-        minStockThreshold: Number(minStockThreshold) || 5,
+        costPrice: cPrice,
+        sellingPrice: sPrice,
+        minStockThreshold: Math.max(1, Number(minStockThreshold) || 5),
         updatedAt: new Date().toISOString(),
       });
       setIsEditing(false);
@@ -110,7 +121,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   today.setHours(0, 0, 0, 0);
 
   const getDaysRemaining = (expStr: string) => {
-    const exp = new Date(expStr);
+    const parts = expStr.split(/[-/]/).map(Number);
+    const exp = parts.length === 3 && parts[0] > 1900 ? new Date(parts[0], parts[1] - 1, parts[2]) : new Date(expStr);
     exp.setHours(0, 0, 0, 0);
     return Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   };
@@ -277,8 +289,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
                 <span className="text-xs text-slate-500 dark:text-slate-400 block">Profit Margin</span>
                 <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {product.sellingPrice > 0
-                    ? `${Math.round(((product.sellingPrice - product.costPrice) / product.sellingPrice) * 100)}%`
+                  {!isNaN(product.sellingPrice) && product.sellingPrice > 0
+                    ? `${Math.round(((product.sellingPrice - (product.costPrice || 0)) / product.sellingPrice) * 100)}%`
                     : '0%'}
                 </span>
               </div>

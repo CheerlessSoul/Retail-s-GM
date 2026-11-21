@@ -55,6 +55,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       if (timeRange === '7days') {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        sevenDaysAgo.setHours(0, 0, 0, 0);
         return saleDate >= sevenDaysAgo;
       }
       if (timeRange === 'month') {
@@ -403,6 +404,67 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             ) : (
               <span className="text-xs text-slate-400">No sales recorded yet</span>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Stock Health Breakdown Chart */}
+      <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+              Inventory & Shelf Health Breakdown
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Distribution of fresh stock, low stock thresholds, and quarantined expired units
+            </p>
+          </div>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
+            Real-Time
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <div className="h-56 w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsPie>
+                <Pie
+                  data={inventoryHealth}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={45}
+                  outerRadius={75}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {inventoryHealth.map((entry, index) => (
+                    <Cell key={`health-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(val: any) => [`${val} units`, 'Quantity']}
+                  contentStyle={{
+                    backgroundColor: '#1e293b',
+                    borderRadius: '0.75rem',
+                    color: '#f8fafc',
+                    fontSize: '12px',
+                  }}
+                />
+                <Legend wrapperStyle={{ fontSize: '10px' }} />
+              </RechartsPie>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            {inventoryHealth.map((item, idx) => (
+              <div key={idx} className="p-3 rounded-xl border border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/30">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="font-medium text-slate-600 dark:text-slate-300">{item.name}</span>
+                </div>
+                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{item.value} units</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -97,10 +97,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     if (!file) return;
 
     const reader = new FileReader();
+    reader.onerror = () => {
+      alert('Error reading backup file.');
+    };
     reader.onload = async (event) => {
       try {
         const json = JSON.parse(event.target?.result as string);
-        if (json.products && json.batches) {
+        if (
+          Array.isArray(json.products) &&
+          Array.isArray(json.batches) &&
+          json.products.every((p: any) => p && typeof p.name === 'string' && typeof p.id === 'string') &&
+          json.batches.every((b: any) => b && typeof b.expiryDate === 'string' && typeof b.productId === 'string')
+        ) {
           await db.transaction('rw', db.products, db.batches, db.stockHistory, db.sales, db.settings, async () => {
             await db.products.clear();
             await db.batches.clear();
@@ -109,17 +117,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             await db.products.bulkPut(json.products);
             await db.batches.bulkPut(json.batches);
-            if (json.history) await db.stockHistory.bulkPut(json.history);
-            if (json.sales) await db.sales.bulkPut(json.sales);
-            if (json.settings) await db.settings.bulkPut(json.settings);
+            if (Array.isArray(json.history)) await db.stockHistory.bulkPut(json.history);
+            if (Array.isArray(json.sales)) await db.sales.bulkPut(json.sales);
+            if (Array.isArray(json.settings) && json.settings.length > 0) {
+              await db.settings.bulkPut(json.settings);
+            }
           });
-          alert('Backup restored successfully! The page will now reload.');
+          alert('Backup restored successfully! The application will now reload.');
           window.location.reload();
         } else {
-          alert('Invalid backup file format.');
+          alert('Invalid or corrupted backup file format. Expected valid products and batches array.');
         }
       } catch (err) {
-        alert('Failed to parse backup JSON file.');
+        alert('Failed to parse backup JSON file: Invalid JSON syntax.');
       }
     };
     reader.readAsText(file);

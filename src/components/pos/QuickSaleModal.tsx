@@ -10,7 +10,8 @@ import {
   Printer, 
   ShoppingBag, 
   Camera, 
-  AlertTriangle 
+  AlertTriangle,
+  ShieldAlert 
 } from 'lucide-react';
 import type { Product, ProductBatch, SaleTransaction } from '../../types';
 import { BarcodeScannerModal } from '../common/BarcodeScannerModal';
@@ -55,35 +56,53 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Check if a product has expired batches
-  const checkProductExpiryWarning = (productId: string) => {
-    const prodBatches = batches.filter((b) => b.productId === productId && b.quantity > 0);
-    const hasExpired = prodBatches.some((b) => {
-      const exp = new Date(b.expiryDate);
+  /**
+   * Helper to inspect expiry safety & saleable non-expired stock
+   */
+  const getProductStockStatus = (productId: string) => {
+    const prodBatches = batches.filter((b) => b.productId === productId && b.quantity > 0 && b.status !== 'disposed');
+
+    let saleableStock = 0;
+    let expiredStock = 0;
+    let urgentStock = 0;
+
+    prodBatches.forEach((b) => {
+      const parts = b.expiryDate.split(/[-/]/).map(Number);
+      const exp = parts.length === 3 && parts[0] > 1900 ? new Date(parts[0], parts[1] - 1, parts[2]) : new Date(b.expiryDate);
       exp.setHours(0, 0, 0, 0);
-      return Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) <= 0;
-    });
-    const hasUrgent = prodBatches.some((b) => {
-      const exp = new Date(b.expiryDate);
-      exp.setHours(0, 0, 0, 0);
-      const diff = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      return diff > 0 && diff <= 7;
+
+      const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffDays <= 0 || b.status === 'expired') {
+        expiredStock += b.quantity;
+      } else {
+        saleableStock += b.quantity;
+        if (diffDays <= 7) {
+          urgentStock += b.quantity;
+        }
+      }
     });
 
-    return { hasExpired, hasUrgent };
+    return {
+      saleableStock,
+      expiredStock,
+      urgentStock,
+      isCompletelyExpired: saleableStock === 0 && expiredStock > 0,
+      hasUrgentBatch: urgentStock > 0,
+    };
   };
 
   const addToCart = (product: Product) => {
-    if (product.currentStock <= 0) {
+    const status = getProductStockStatus(product.id);
+
+    if (status.isCompletelyExpired) {
       sound.playAlertBuzz();
-      setError(`Cannot add ${product.name}: Out of stock!`);
+      setError(`Cannot add "${product.name}": All available stock is expired and quarantined.`);
       return;
     }
 
-    const { hasExpired } = checkProductExpiryWarning(product.id);
-    if (hasExpired && product.currentStock <= 0) {
+    if (status.saleableStock <= 0) {
       sound.playAlertBuzz();
-      setError(`Warning: Active stock for ${product.name} is expired!`);
+      setError(`Cannot add "${product.name}": Out of stock.`);
       return;
     }
 
@@ -93,8 +112,8 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
-        if (existing.quantity >= product.currentStock) {
-          setError(`Cannot add more: Max available stock is ${product.currentStock}`);
+        if (existing.quantity >= status.saleableStock) {
+          setError(`Cannot add more: Max available fresh stock for "${product.name}" is ${status.saleableStock}`);
           return prev;
         }
         return prev.map((item) =>
@@ -106,14 +125,16 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
   };
 
   const updateQuantity = (productId: string, delta: number) => {
+    const status = getProductStockStatus(productId);
+
     setCart((prev) => {
       return prev
         .map((item) => {
           if (item.product.id === productId) {
             const newQty = item.quantity + delta;
             if (newQty <= 0) return null;
-            if (newQty > item.product.currentStock) {
-              setError(`Max available stock for ${item.product.name} is ${item.product.currentStock}`);
+            if (newQty > status.saleableStock) {
+              setError(`Max fresh stock for "${item.product.name}" is ${status.saleableStock}`);
               return item;
             }
             return { ...item, quantity: newQty };
@@ -165,10 +186,9 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
   const searchResults = products
     .filter(
       (p) =>
-        p.currentStock > 0 &&
-        (p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.barcode.includes(searchTerm))
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.barcode.includes(searchTerm)
     )
     .slice(0, 8);
 
@@ -188,7 +208,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                   Quick Retail Checkout / POS
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Instant barcode scanning, First-Expire-First-Out batch deduction, and sales recording.
+                  First-Expire-First-Out automatic batch deduction, barcode scanning, and safety checks.
                 </p>
               </div>
             </div>
@@ -201,7 +221,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
           </div>
 
           {error && (
-            <div className="mx-6 mt-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-2 text-xs font-medium text-red-700 dark:text-red-300">
+            <div className="mx-6 mt-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-2 text-xs font-semibold text-red-700 dark:text-red-300">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -316,24 +336,28 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
                     {searchResults.map((p) => {
-                      const { hasExpired, hasUrgent } = checkProductExpiryWarning(p.id);
+                      const { saleableStock, isCompletelyExpired, hasUrgentBatch } = getProductStockStatus(p.id);
 
                       return (
                         <div
                           key={p.id}
                           onClick={() => addToCart(p)}
-                          className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-500 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between"
+                          className={`p-2.5 rounded-xl border transition-all flex flex-col justify-between ${
+                            isCompletelyExpired
+                              ? 'bg-red-50/40 dark:bg-red-950/20 border-red-300 opacity-60 cursor-not-allowed'
+                              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-brand-500 hover:shadow-sm cursor-pointer'
+                          }`}
                         >
                           <div>
                             <div className="flex items-start justify-between gap-1">
                               <h4 className="font-semibold text-xs text-slate-900 dark:text-slate-100 line-clamp-1">
                                 {p.name}
                               </h4>
-                              {hasExpired ? (
+                              {isCompletelyExpired ? (
                                 <span className="text-[9px] px-1 py-0.2 bg-red-100 text-red-700 rounded font-bold">
-                                  EXP
+                                  EXPIRED
                                 </span>
-                              ) : hasUrgent ? (
+                              ) : hasUrgentBatch ? (
                                 <span className="text-[9px] px-1 py-0.2 bg-orange-100 text-orange-700 rounded font-bold">
                                   &le;7d
                                 </span>
@@ -343,7 +367,9 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                           </div>
 
                           <div className="mt-2 flex items-center justify-between text-xs">
-                            <span className="text-[10px] text-slate-500">Stock: {p.currentStock}</span>
+                            <span className="text-[10px] text-slate-500">
+                              Fresh: {saleableStock} {p.unit}
+                            </span>
                             <span className="font-bold text-brand-600 dark:text-brand-400">
                               {currency}{p.sellingPrice}
                             </span>
@@ -354,7 +380,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
 
                     {searchResults.length === 0 && (
                       <div className="col-span-2 text-center py-6 text-xs text-slate-400">
-                        No in-stock products matching "{searchTerm}".
+                        No products matching "{searchTerm}".
                       </div>
                     )}
                   </div>
@@ -436,7 +462,6 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
 
                 {/* Checkout Section */}
                 <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3 mt-4">
-                  {/* Customer name (optional) */}
                   <div>
                     <input
                       type="text"

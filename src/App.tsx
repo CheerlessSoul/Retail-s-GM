@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './db';
 import { initializeDatabase } from './db/seedData';
+import { sound } from './services/soundService';
 import type { 
   Product, 
   ProductBatch, 
@@ -66,6 +67,7 @@ export const App: React.FC = () => {
         };
         setSettings(safeSettings);
         applyTheme(safeSettings.theme);
+        sound.setEnabled(safeSettings.soundEnabled);
       }
     } finally {
       setIsLoading(false);
@@ -92,26 +94,32 @@ export const App: React.FC = () => {
     await db.settings.put(updated);
   };
 
-  // Compute live alert counts
+  // Compute live alert counts with date-safe local parsing
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const expiredCount = batches.filter((b) => {
     if (b.quantity <= 0 || b.status === 'disposed') return false;
-    const exp = new Date(b.expiryDate);
-    exp.setHours(0, 0, 0, 0);
+    const exp = db.parseLocalDate(b.expiryDate);
     return Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) <= 0;
   }).length;
 
   const urgentExpiryCount = batches.filter((b) => {
     if (b.quantity <= 0 || b.status === 'disposed') return false;
-    const exp = new Date(b.expiryDate);
-    exp.setHours(0, 0, 0, 0);
+    const exp = db.parseLocalDate(b.expiryDate);
     const diff = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return diff > 0 && diff <= (settings.urgentExpiryDays || 7);
   }).length;
 
-  const lowStockCount = products.filter((p) => p.currentStock <= p.minStockThreshold).length;
+  // Saleable stock only: expired batches do not mask low-stock conditions
+  const lowStockCount = products.filter((p) => {
+    const prodBatches = batches.filter((b) => b.productId === p.id && b.quantity > 0 && b.status !== 'disposed');
+    const freshStock = prodBatches.reduce((sum, b) => {
+      const exp = db.parseLocalDate(b.expiryDate);
+      return Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) > 0 ? sum + b.quantity : sum;
+    }, 0);
+    return freshStock <= p.minStockThreshold;
+  }).length;
 
   // DB Handlers
   const handleAddProduct = async (productData: {
@@ -222,6 +230,7 @@ export const App: React.FC = () => {
     await db.settings.put(newSettings);
     setSettings(newSettings);
     applyTheme(newSettings.theme);
+    sound.setEnabled(newSettings.soundEnabled);
   };
 
   if (isLoading) {

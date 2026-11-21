@@ -91,7 +91,8 @@ export const ProductList: React.FC<ProductListProps> = ({
 
   const getExpiryBadge = (expStr?: string) => {
     if (!expStr) return null;
-    const exp = new Date(expStr);
+    const parts = expStr.split(/[-/]/).map(Number);
+    const exp = parts.length === 3 && parts[0] > 1900 ? new Date(parts[0], parts[1] - 1, parts[2]) : new Date(expStr);
     exp.setHours(0, 0, 0, 0);
     const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 

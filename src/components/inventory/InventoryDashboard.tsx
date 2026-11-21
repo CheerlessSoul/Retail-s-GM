@@ -53,6 +53,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   const [adjustModalProduct, setAdjustModalProduct] = useState<Product | null>(null);
   const [selectedBatchId, setSelectedBatchId] = useState<string>('');
   const [actionType, setActionType] = useState<StockChangeType>('restock');
+  const [adjustmentDirection, setAdjustmentDirection] = useState<'add' | 'subtract'>('subtract');
   const [deltaQuantity, setDeltaQuantity] = useState<number>(5);
   const [reason, setReason] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -106,8 +107,12 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
     try {
       setIsSubmitting(true);
-      const isNegative = actionType === 'damaged' || actionType === 'expired_removal';
-      const delta = isNegative ? -Math.abs(deltaQuantity) : Math.abs(deltaQuantity);
+      let delta = Math.abs(deltaQuantity);
+      if (actionType === 'damaged' || actionType === 'expired_removal') {
+        delta = -delta;
+      } else if (actionType === 'adjustment') {
+        delta = adjustmentDirection === 'subtract' ? -delta : delta;
+      }
 
       await onAdjustStock(
         adjustModalProduct.id,
@@ -524,6 +529,38 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                   <option value="adjustment">Inventory Count Audit Correction</option>
                 </select>
               </div>
+
+              {actionType === 'adjustment' && (
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Audit Result Direction
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAdjustmentDirection('subtract')}
+                      className={`py-1.5 px-3 text-xs font-semibold rounded-lg border transition-colors ${
+                        adjustmentDirection === 'subtract'
+                          ? 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-300 dark:border-red-800'
+                          : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-250 dark:border-slate-600'
+                      }`}
+                    >
+                      - Shortage (Reduce Stock)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAdjustmentDirection('add')}
+                      className={`py-1.5 px-3 text-xs font-semibold rounded-lg border transition-colors ${
+                        adjustmentDirection === 'add'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                          : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-250 dark:border-slate-600'
+                      }`}
+                    >
+                      + Surplus (Found Stock)
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Quantity */}
               <div>

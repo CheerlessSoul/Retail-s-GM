@@ -41,7 +41,8 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
   today.setHours(0, 0, 0, 0);
 
   const getDaysRemaining = (expStr: string) => {
-    const exp = new Date(expStr);
+    const parts = expStr.split(/[-/]/).map(Number);
+    const exp = parts.length === 3 && parts[0] > 1900 ? new Date(parts[0], parts[1] - 1, parts[2]) : new Date(expStr);
     exp.setHours(0, 0, 0, 0);
     return Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   };
