@@ -8,7 +8,8 @@ import {
   Calendar, 
   BarChart3, 
   PieChart, 
-  ArrowUpRight 
+  ArrowUpRight,
+  Download 
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -174,6 +175,30 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
     ].filter((item) => item.value > 0);
   }, [batches, products]);
 
+  const handleExportSalesCsv = () => {
+    if (filteredSales.length === 0) return;
+    const headers = ['Sale ID', 'Date & Time', 'Receipt #', 'Customer Name', 'Payment Method', 'Items Count', 'Total Sales Amount', 'Cost of Goods', 'Estimated Profit'];
+    const rows = filteredSales.map((s) => [
+      `"${s.id}"`,
+      `"${new Date(s.timestamp).toLocaleString('en-IN')}"`,
+      `"${s.receiptNumber}"`,
+      `"${s.customerName || 'Walk-in'}"`,
+      `"${s.paymentMethod.toUpperCase()}"`,
+      s.items.reduce((acc, i) => acc + i.quantity, 0),
+      s.totalAmount.toFixed(2),
+      s.totalCost.toFixed(2),
+      s.totalProfit.toFixed(2),
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `retails_gm_sales_report_${timeRange}_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Header & Range Filters */}
@@ -187,38 +212,51 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           </p>
         </div>
 
-        {/* Time Filter Pills */}
-        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start sm:self-auto text-xs">
-          {[
-            { id: 'today', label: 'Today' },
-            { id: '7days', label: 'Last 7 Days' },
-            { id: 'month', label: 'This Month' },
-            { id: 'all', label: 'All Time' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setTimeRange(tab.id as typeof timeRange)}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
-                timeRange === tab.id
-                  ? 'bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Action Controls & Time Filters */}
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={handleExportSalesCsv}
+            disabled={filteredSales.length === 0}
+            title="Download Sales & Profit Report as CSV"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 btn-3d-secondary text-xs disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+            <Download className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
+            <span className="font-semibold">Export CSV</span>
+          </button>
+
+          {/* Time Filter Pills */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs shadow-inner">
+            {[
+              { id: 'today', label: 'Today' },
+              { id: '7days', label: 'Last 7 Days' },
+              { id: 'month', label: 'This Month' },
+              { id: 'all', label: 'All Time' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setTimeRange(tab.id as typeof timeRange)}
+                className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                  timeRange === tab.id
+                    ? 'bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-sm font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Main Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Sales Revenue */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 card-3d-hover">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Total Sales
             </span>
-            <span className="p-1.5 rounded-lg bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400">
+            <span className="p-1.5 rounded-lg bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 shadow-inner">
               <ShoppingBag className="w-4 h-4" />
             </span>
           </div>
@@ -231,12 +269,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </div>
 
         {/* Estimated Gross Profit */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 card-3d-hover">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
               Estimated Profit
             </span>
-            <span className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+            <span className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 shadow-inner">
               <TrendingUp className="w-4 h-4" />
             </span>
           </div>
@@ -249,12 +287,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </div>
 
         {/* Estimated Expenses / COGS */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 card-3d-hover">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Product Expenses (COGS)
             </span>
-            <span className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+            <span className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shadow-inner">
               <DollarSign className="w-4 h-4" />
             </span>
           </div>
@@ -267,12 +305,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </div>
 
         {/* Average Order Value */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 card-3d-hover">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Avg Receipt Value
             </span>
-            <span className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+            <span className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shadow-inner">
               <Percent className="w-4 h-4" />
             </span>
           </div>

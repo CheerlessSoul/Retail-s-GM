@@ -11,7 +11,8 @@ import {
   ShieldAlert, 
   Calendar,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Download
 } from 'lucide-react';
 import type { Product, ProductBatch } from '../../types';
 
@@ -104,6 +105,32 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
     setClearanceModalBatch(null);
   };
 
+  const handleExportCsv = () => {
+    const headers = ['Product', 'Brand', 'Category', 'Batch', 'Expiry Date', 'Days Left', 'Quantity', 'Status'];
+    const rows = currentList.map((b) => {
+      const p = getProduct(b.productId);
+      const d = getDaysRemaining(b.expiryDate);
+      return [
+        `"${p?.name || ''}"`,
+        `"${p?.brand || ''}"`,
+        `"${p?.category || ''}"`,
+        `"${b.batchNumber}"`,
+        `"${b.expiryDate}"`,
+        d,
+        b.quantity,
+        d === 0 ? 'Expires Today' : d < 0 ? 'Expired' : d <= 7 ? 'Urgent' : d <= 30 ? 'Upcoming' : 'Fresh',
+      ].join(',');
+    });
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `retails-gm-expiry-report-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Title */}
@@ -144,7 +171,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
         {/* Expired Card */}
         <div
           onClick={() => setFilterMode('expired')}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+          className={`p-4 rounded-2xl border transition-all cursor-pointer card-3d-hover ${
             filterMode === 'expired'
               ? 'bg-red-50 dark:bg-red-950/40 border-red-400 ring-2 ring-red-400/40'
               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-red-300'
@@ -167,7 +194,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
         {/* Urgent Card (<7 Days) */}
         <div
           onClick={() => setFilterMode('urgent')}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+          className={`p-4 rounded-2xl border transition-all cursor-pointer card-3d-hover ${
             filterMode === 'urgent'
               ? 'bg-orange-50 dark:bg-orange-950/40 border-orange-400 ring-2 ring-orange-400/40'
               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-orange-300'
@@ -190,7 +217,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
         {/* Warning Card (<30 Days) */}
         <div
           onClick={() => setFilterMode('warning')}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+          className={`p-4 rounded-2xl border transition-all cursor-pointer card-3d-hover ${
             filterMode === 'warning'
               ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-400 ring-2 ring-amber-400/40'
               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-amber-300'
@@ -213,7 +240,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
         {/* Safe Stock */}
         <div
           onClick={() => setFilterMode('safe')}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+          className={`p-4 rounded-2xl border transition-all cursor-pointer card-3d-hover ${
             filterMode === 'safe'
               ? 'bg-emerald-50 dark:bg-emerald-950/40 border-brand-500 ring-2 ring-brand-500/40'
               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-brand-300'
@@ -235,7 +262,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
       </div>
 
       {/* Filter Tabs & Search */}
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 card-3d">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           
           {/* Status Tabs */}
@@ -296,16 +323,26 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
             </button>
           </div>
 
-          {/* Search Box */}
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search product or batch..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
+          {/* Search Box & Export */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-60">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search product or batch..."
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+            <button
+              onClick={handleExportCsv}
+              className="px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl transition-colors flex items-center gap-1 shrink-0"
+              title="Export Expiry Report to CSV"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Export CSV</span>
+            </button>
           </div>
         </div>
       </div>
@@ -368,7 +405,11 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
 
                     {/* Days Remaining */}
                     <td className="px-4 py-3">
-                      {isExpired ? (
+                      {days === 0 ? (
+                        <span className="font-extrabold text-red-600 dark:text-red-400 animate-pulse">
+                          Expires Today!
+                        </span>
+                      ) : isExpired ? (
                         <span className="font-bold text-red-600 dark:text-red-400">
                           Expired {Math.abs(days)} days ago
                         </span>
@@ -394,20 +435,24 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
 
                     {/* Status Badge */}
                     <td className="px-4 py-3">
-                      {isExpired ? (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300">
+                      {days === 0 ? (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-200 animate-pulse badge-3d">
+                          EXPIRES TODAY
+                        </span>
+                      ) : isExpired ? (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 badge-3d">
                           QUARANTINED
                         </span>
                       ) : isUrgent ? (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300 badge-3d">
                           URGENT
                         </span>
                       ) : isUpcoming ? (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 badge-3d">
                           UPCOMING
                         </span>
                       ) : (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 badge-3d">
                           FRESH
                         </span>
                       )}

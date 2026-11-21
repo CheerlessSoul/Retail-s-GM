@@ -18,6 +18,7 @@ import { InventoryDashboard } from './components/inventory/InventoryDashboard';
 import { AnalyticsDashboard } from './components/analytics/AnalyticsDashboard';
 import { QuickSaleModal } from './components/pos/QuickSaleModal';
 import { SettingsModal } from './components/settings/SettingsModal';
+import { ToastContainer, ToastMessage } from './components/common/Toast';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('products');
@@ -25,6 +26,7 @@ export const App: React.FC = () => {
   const [batches, setBatches] = useState<ProductBatch[]>([]);
   const [stockHistory, setStockHistory] = useState<StockHistory[]>([]);
   const [sales, setSales] = useState<SaleTransaction[]>([]);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [settings, setSettings] = useState<ShopSettings>({
     shopName: "Retail's GM Store",
     ownerName: 'Store Owner',
@@ -41,6 +43,20 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isPosOpen, setIsPosOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const addToast = (title: string, message?: string, type: 'success' | 'error' | 'info' = 'success') => {
+    const newToast: ToastMessage = {
+      id: `toast_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      title,
+      message,
+      type,
+    };
+    setToasts((prev) => [...prev.slice(-3), newToast]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   // Initialize and load data from Dexie IndexedDB
   const refreshData = async () => {
@@ -121,7 +137,7 @@ export const App: React.FC = () => {
     return freshStock <= p.minStockThreshold;
   }).length;
 
-  // DB Handlers
+  // DB Handlers with Interactive Feedback Toasts
   const handleAddProduct = async (productData: {
     name: string;
     brand: string;
@@ -156,6 +172,7 @@ export const App: React.FC = () => {
       }
     );
     await refreshData();
+    addToast('Product Added', `${productData.name} saved with batch ${productData.batchNumber}`, 'success');
   };
 
   const handleAddBatch = async (
@@ -170,11 +187,13 @@ export const App: React.FC = () => {
   ) => {
     await db.addBatchToProduct(productId, batchData);
     await refreshData();
+    addToast('Batch Added', `Batch ${batchData.batchNumber} added with ${batchData.quantity} units`, 'success');
   };
 
   const handleUpdateProduct = async (updatedProduct: Product) => {
     await db.products.put(updatedProduct);
     await refreshData();
+    addToast('Product Updated', `${updatedProduct.name} details saved`, 'success');
   };
 
   const handleDeleteProduct = async (productId: string) => {
@@ -186,6 +205,7 @@ export const App: React.FC = () => {
       }
     });
     await refreshData();
+    addToast('Product Deleted', 'Product and related inventory records removed', 'info');
   };
 
   const handleDisposeBatch = async (productId: string, batchId: string, reason: string) => {
@@ -193,6 +213,7 @@ export const App: React.FC = () => {
     if (!batch) return;
     await db.adjustStock(productId, batchId, -batch.quantity, 'expired_removal', reason);
     await refreshData();
+    addToast('Expired Stock Disposed', `Quarantined batch disposed (${reason})`, 'info');
   };
 
   const handleClearanceBatch = async (productId: string, newSellingPrice: number) => {
@@ -203,6 +224,7 @@ export const App: React.FC = () => {
       updatedAt: new Date().toISOString(),
     });
     await refreshData();
+    addToast('Clearance Price Set', `Selling price updated to ${settings.currency}${newSellingPrice}`, 'success');
   };
 
   const handleAdjustStock = async (
@@ -214,6 +236,7 @@ export const App: React.FC = () => {
   ) => {
     await db.adjustStock(productId, batchId, quantityDelta, type, reason);
     await refreshData();
+    addToast('Stock Adjusted', `Stock delta: ${quantityDelta > 0 ? '+' : ''}${quantityDelta} (${reason})`, 'info');
   };
 
   const handleProcessSale = async (
@@ -223,6 +246,7 @@ export const App: React.FC = () => {
   ) => {
     const sale = await db.processSale(cart, paymentMethod, customerName);
     await refreshData();
+    addToast(`Sale Complete (#${sale.receiptNumber})`, `Total: ${settings.currency}${sale.totalAmount.toFixed(2)} via ${paymentMethod.toUpperCase()}`, 'success');
     return sale;
   };
 
@@ -231,6 +255,7 @@ export const App: React.FC = () => {
     setSettings(newSettings);
     applyTheme(newSettings.theme);
     sound.setEnabled(newSettings.soundEnabled);
+    addToast('Settings Saved', 'Shop preferences updated successfully', 'success');
   };
 
   if (isLoading) {
@@ -325,6 +350,9 @@ export const App: React.FC = () => {
           onThemeToggle={applyTheme}
         />
       )}
+
+      {/* Interactive Action Notifications */}
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
   );
 };

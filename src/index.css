@@ -25,6 +25,66 @@
   }
 }
 
+/* ======================================================== */
+/* 3D TACTILE DEPTH & CLEAN ELEVATION EFFECTS (Non-messy)  */
+/* ======================================================== */
+@layer components {
+  /* Subtle 3D Card with specular top highlight & soft depth */
+  .card-3d {
+    @apply relative transition-all duration-200;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .dark .card-3d {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .card-3d-hover {
+    @apply card-3d;
+  }
+  .card-3d-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  }
+  .dark .card-3d-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  }
+
+  /* Tactile 3D Button - feels like a physical modern register key */
+  .btn-3d-brand {
+    @apply relative font-semibold transition-all duration-150 active:translate-y-[2px];
+    box-shadow: 0 3px 0 0 #047857, 0 4px 8px rgba(5, 150, 105, 0.25);
+  }
+  .btn-3d-brand:active {
+    box-shadow: 0 1px 0 0 #047857, 0 2px 4px rgba(5, 150, 105, 0.2);
+  }
+
+  .btn-3d-secondary {
+    @apply relative font-semibold transition-all duration-150 active:translate-y-[2px];
+    box-shadow: 0 2px 0 0 #cbd5e1, 0 3px 6px rgba(0, 0, 0, 0.04);
+  }
+  .dark .btn-3d-secondary {
+    box-shadow: 0 2px 0 0 #334155, 0 3px 6px rgba(0, 0, 0, 0.2);
+  }
+  .btn-3d-secondary:active {
+    box-shadow: 0 0 0 0 transparent;
+  }
+
+  /* 3D Stat Badge */
+  .badge-3d {
+    @apply inline-flex items-center font-bold transition-transform;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+  .dark .badge-3d {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -38,4 +98,34 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-slate-400 dark:bg-slate-600;
+}
+
+/* ======================================================== */
+/* THERMAL POS RECEIPT PRINTING STYLES                     */
+/* ======================================================== */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-receipt, #printable-receipt * {
+    visibility: visible;
+  }
+  #printable-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 78mm;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 8px;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  #printable-receipt .no-print {
+    display: none !important;
+  }
 }

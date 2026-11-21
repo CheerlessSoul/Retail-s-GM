@@ -182,6 +182,37 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
     setError(null);
   };
 
+  const generateBillText = () => {
+    if (!completedSale) return '';
+    const lines = [
+      `*RETAIL'S GM STORE RECEIPT*`,
+      `Receipt No: #${completedSale.receiptNumber}`,
+      `Date: ${new Date(completedSale.timestamp).toLocaleString()}`,
+      completedSale.customerName ? `Customer: ${completedSale.customerName}` : '',
+      `--------------------------------`,
+      ...completedSale.items.map(
+        (i) => `${i.productName} (${i.quantity} pcs) - ${currency}${i.totalPrice}`
+      ),
+      `--------------------------------`,
+      `*TOTAL AMOUNT: ${currency}${completedSale.totalAmount}*`,
+      `Payment: ${completedSale.paymentMethod.toUpperCase()}`,
+      `Thank you for your visit!`,
+    ].filter(Boolean);
+    return lines.join('\n');
+  };
+
+  const handleShareWhatsApp = () => {
+    const text = encodeURIComponent(generateBillText());
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
+  const handleCopyBill = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(generateBillText());
+      alert('Receipt details copied to clipboard!');
+    }
+  };
+
   // Search filtered products
   const searchResults = products
     .filter(
@@ -239,10 +270,10 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
               </h3>
 
               {/* Printable Receipt Card */}
-              <div className="w-full max-w-sm bg-slate-50 dark:bg-slate-900/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 font-mono text-xs text-left space-y-3">
+              <div id="printable-receipt" className="w-full max-w-sm bg-slate-50 dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 font-mono text-xs text-left space-y-3 card-3d">
                 <div className="text-center border-b border-dashed border-slate-300 dark:border-slate-600 pb-2">
                   <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                    RETAIL GM RECEIPT
+                    RETAIL'S GM RECEIPT
                   </h4>
                   <p className="text-slate-500 text-[10px]">Receipt #{completedSale.receiptNumber}</p>
                   <p className="text-slate-500 text-[10px]">{new Date(completedSale.timestamp).toLocaleString()}</p>
@@ -285,19 +316,32 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              {/* Receipt Action Buttons */}
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
                 <button
                   onClick={() => window.print()}
-                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 flex items-center gap-1.5"
+                  className="px-3.5 py-2 border border-slate-300 dark:border-slate-600 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-1.5 transition-all active:scale-95"
                 >
                   <Printer className="w-4 h-4" />
-                  <span>Print Receipt</span>
+                  <span>Print Slip</span>
+                </button>
+                <button
+                  onClick={handleShareWhatsApp}
+                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all btn-3d-brand"
+                >
+                  <span>WhatsApp Bill</span>
+                </button>
+                <button
+                  onClick={handleCopyBill}
+                  className="px-3.5 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all"
+                >
+                  <span>Copy Text</span>
                 </button>
                 <button
                   onClick={handleResetAndNewSale}
-                  className="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold transition-colors shadow-sm"
+                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold transition-all btn-3d-brand"
                 >
-                  Start Next Sale
+                  Next Sale &rarr;
                 </button>
               </div>
             </div>
@@ -506,7 +550,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                   <button
                     onClick={handleCheckout}
                     disabled={cart.length === 0 || isSubmitting}
-                    className="w-full py-2.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white rounded-xl text-sm font-bold transition-colors shadow-sm"
+                    className="w-full py-3 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white rounded-xl text-sm font-bold transition-all btn-3d-brand"
                   >
                     {isSubmitting ? 'Recording Sale...' : `Charge ${currency}${totalAmount.toFixed(2)}`}
                   </button>

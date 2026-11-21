@@ -148,7 +148,7 @@ export const ProductList: React.FC<ProductListProps> = ({
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 text-xs sm:text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition-colors flex items-center gap-1.5 shadow-sm"
+            className="px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition-all flex items-center gap-1.5 btn-3d-brand"
           >
             <Plus className="w-4 h-4" />
             <span>Add Product</span>
@@ -157,7 +157,7 @@ export const ProductList: React.FC<ProductListProps> = ({
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+      <div className="bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 card-3d">
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
           
           {/* Search Box */}
@@ -237,7 +237,7 @@ export const ProductList: React.FC<ProductListProps> = ({
               <div
                 key={product.id}
                 onClick={() => setSelectedProduct(product)}
-                className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md hover:border-brand-500/50 transition-all cursor-pointer flex flex-col justify-between group"
+                className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 card-3d-hover hover:border-brand-500/50 cursor-pointer flex flex-col justify-between group"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-2">

@@ -10,7 +10,8 @@ import {
   ArrowDownRight, 
   RefreshCw, 
   CheckCircle, 
-  SlidersHorizontal 
+  SlidersHorizontal,
+  Download 
 } from 'lucide-react';
 import type { Product, ProductBatch, StockHistory, StockChangeType } from '../../types';
 
@@ -148,6 +149,50 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     }
   };
 
+  const handleExportCsv = () => {
+    if (activeTab === 'history') {
+      const headers = ['Timestamp', 'Product Name', 'Change Type', 'Quantity Delta', 'Stock Before', 'Stock After', 'Reason'];
+      const rows = filteredHistory.map((h) => [
+        `"${new Date(h.timestamp).toLocaleString()}"`,
+        `"${h.productName}"`,
+        h.type,
+        h.quantityDelta,
+        h.stockBefore,
+        h.stockAfter,
+        `"${h.reason}"`,
+      ].join(','));
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `retails-gm-stock-audit-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      const headers = ['Product Name', 'Brand', 'Category', 'Barcode', 'Current Stock', 'Min Threshold', 'Cost Price', 'Selling Price', 'Status'];
+      const rows = filteredProducts.map((p) => [
+        `"${p.name}"`,
+        `"${p.brand}"`,
+        `"${p.category}"`,
+        `"${p.barcode}"`,
+        p.currentStock,
+        p.minStockThreshold,
+        p.costPrice,
+        p.sellingPrice,
+        p.currentStock <= 0 ? 'Out of Stock' : p.currentStock <= p.minStockThreshold ? 'Low Stock' : 'In Stock',
+      ].join(','));
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `retails-gm-inventory-report-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Title */}
@@ -163,7 +208,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total SKUs */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
             Total Inventory
           </span>
@@ -178,7 +223,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         {/* Low Stock Alert */}
         <div
           onClick={() => setActiveTab('low_stock')}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+          className={`p-4 rounded-2xl border transition-all cursor-pointer card-3d-hover ${
             activeTab === 'low_stock'
               ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-400 ring-2 ring-amber-400/40'
               : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-amber-300'
@@ -199,7 +244,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         </div>
 
         {/* Total Cost Valuation */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
             Stock Value (Cost)
           </span>
@@ -212,7 +257,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         </div>
 
         {/* Retail Valuation */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
           <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider block">
             Retail Value (Selling)
           </span>
@@ -226,7 +271,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
       </div>
 
       {/* Tabs & Search */}
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 card-3d">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           
           {/* Tab buttons */}
@@ -268,16 +313,26 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
             </button>
           </div>
 
-          {/* Search Box */}
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search product or history..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
+          {/* Search Box & Export */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-60">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search product or history..."
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+            <button
+              onClick={handleExportCsv}
+              className="px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl transition-colors flex items-center gap-1 shrink-0"
+              title="Export report to CSV"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Export CSV</span>
+            </button>
           </div>
         </div>
       </div>

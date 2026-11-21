@@ -193,17 +193,45 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                 value={manualCode}
                 onChange={(e) => setManualCode(e.target.value)}
                 placeholder="e.g. 8901030383701"
-                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
             <button
               type="submit"
               disabled={!manualCode.trim()}
-              className="px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
+              className="px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all btn-3d-brand"
             >
               Use Code
             </button>
           </form>
+
+          {/* Quick Click Sample Barcodes */}
+          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
+              Quick Test Barcodes (Click to simulate scan)
+            </span>
+            <div className="flex flex-wrap gap-1.5 text-xs">
+              {[
+                { name: 'Tata Salt', code: '8901058852272' },
+                { name: 'Maggi', code: '8901058863414' },
+                { name: 'Atta 5kg', code: '8901030383701' },
+                { name: 'Amul Milk', code: '8901262010052' },
+              ].map((item) => (
+                <button
+                  key={item.code}
+                  type="button"
+                  onClick={() => {
+                    sound.playScannerBeep();
+                    stopScanner();
+                    onScanSuccess(item.code);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-700 dark:hover:bg-slate-650 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 text-[11px] font-medium transition-colors"
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
