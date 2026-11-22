@@ -10,11 +10,13 @@ import {
   Trash2, 
   Store, 
   Check, 
-  ShieldCheck 
+  ShieldCheck,
+  Globe
 } from 'lucide-react';
-import type { ShopSettings } from '../../types';
+import type { ShopSettings, SupportedLanguage } from '../../types';
 import { db } from '../../db';
 import { loadSampleDemoData } from '../../db/seedData';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -31,6 +33,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSaveSettings,
   onThemeToggle,
 }) => {
+  const { language, setLanguage, strings, supportedLanguages } = useLanguage();
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(
+    settings.language || language || 'en'
+  );
   const [shopName, setShopName] = useState(settings.shopName);
   const [ownerName, setOwnerName] = useState(settings.ownerName);
   const [phone, setPhone] = useState(settings.phone);
@@ -48,6 +54,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     e.preventDefault();
     const updated: ShopSettings = {
       ...settings,
+      language: selectedLanguage,
       shopName: shopName.trim(),
       ownerName: ownerName.trim(),
       phone: phone.trim(),
@@ -60,6 +67,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       isOnboarded: true,
     };
     await onSaveSettings(updated);
+    setLanguage(selectedLanguage);
     onThemeToggle(theme);
     setIsSaved(true);
     setTimeout(() => {
@@ -164,10 +172,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <Store className="w-5 h-5 text-brand-600 dark:text-brand-400" />
             <div>
               <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
-                Application Settings
+                {strings.settings.title}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Configure shop profile, dark mode, alert rules, and data backups.
+                {strings.settings.subtitle}
               </p>
             </div>
           </div>
@@ -182,10 +190,60 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleSave} className="p-5 overflow-y-auto flex-1 space-y-4">
           
-          {/* Theme & Display Mode */}
+          {/* 1. Language Selector (Primary setting as requested) */}
+          <div className="p-3.5 bg-brand-50/50 dark:bg-brand-950/20 rounded-md border border-brand-200 dark:border-brand-900/60 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                <Globe className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                <span>{strings.settings.languageSection}</span>
+              </h3>
+              <span className="text-[10px] font-semibold text-brand-700 dark:text-brand-300 bg-brand-100 dark:bg-brand-900/60 px-2 py-0.5 rounded border border-brand-300 dark:border-brand-800">
+                Default: English
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-600 dark:text-slate-400">
+              {strings.settings.selectLanguagePrompt}
+            </p>
+            
+            {/* 6 Language Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+              {supportedLanguages.map((lang) => {
+                const isSelected = selectedLanguage === lang.code;
+                return (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => {
+                      setSelectedLanguage(lang.code);
+                      setLanguage(lang.code);
+                    }}
+                    className={`p-2.5 rounded-lg border text-left transition-all flex items-center gap-2.5 cursor-pointer ${
+                      isSelected
+                        ? 'bg-white dark:bg-slate-800 border-brand-600 dark:border-brand-500 shadow-sm ring-2 ring-brand-500'
+                        : 'bg-white/70 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-slate-600'
+                    }`}
+                  >
+                    <span className="text-xl shrink-0">{lang.flag}</span>
+                    <div className="min-w-0">
+                      <div className={`text-xs font-bold leading-tight truncate ${
+                        isSelected ? 'text-brand-700 dark:text-brand-300' : 'text-slate-800 dark:text-slate-200'
+                      }`}>
+                        {lang.nativeName}
+                      </div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                        {lang.name}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2. Theme & Display Mode */}
           <div className="p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200 dark:border-slate-700 space-y-2.5">
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              Display & Night Mode
+              {strings.settings.displaySection}
             </h3>
             <div className="grid grid-cols-2 gap-2.5">
               <button
@@ -201,7 +259,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 }`}
               >
                 <Sun className="w-4 h-4 text-amber-500" />
-                <span>Green + White (Day)</span>
+                <span>{strings.settings.lightMode}</span>
               </button>
 
               <button
@@ -217,14 +275,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 }`}
               >
                 <Moon className="w-4 h-4 text-brand-400" />
-                <span>Night / Dark Mode</span>
+                <span>{strings.settings.darkMode}</span>
               </button>
             </div>
 
             {/* Sound toggle */}
             <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-700 text-xs">
               <span className="text-slate-700 dark:text-slate-300 font-medium">
-                Audio Beeps (Scanner & Sales feedback)
+                {strings.settings.soundBeeps}
               </span>
               <button
                 type="button"
@@ -236,20 +294,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 }`}
               >
                 {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-                <span>{soundEnabled ? 'Enabled' : 'Muted'}</span>
+                <span>{soundEnabled ? strings.settings.soundEnabled : strings.settings.soundMuted}</span>
               </button>
             </div>
           </div>
 
-          {/* Shop Profile */}
+          {/* 3. Shop Profile */}
           <div className="space-y-3">
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              Store Profile
+              {strings.settings.profileSection}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">
-                  Shop Name
+                  {strings.settings.shopName}
                 </label>
                 <input
                   type="text"
@@ -262,7 +320,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               <div>
                 <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">
-                  Owner / Manager Name
+                  {strings.settings.ownerName}
                 </label>
                 <input
                   type="text"
@@ -276,7 +334,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">
-                  Phone / Mobile
+                  {strings.settings.phone}
                 </label>
                 <input
                   type="text"
@@ -288,7 +346,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               <div>
                 <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">
-                  Currency Symbol
+                  {strings.settings.currency}
                 </label>
                 <select
                   value={currency}
@@ -297,6 +355,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 >
                   <option value="₹">₹ (Indian Rupee - INR)</option>
                   <option value="$">$ (US Dollar - USD)</option>
+                  <option value="Ks">Ks (Myanmar Kyat - MMK)</option>
                   <option value="€">€ (Euro - EUR)</option>
                   <option value="£">£ (British Pound - GBP)</option>
                   <option value="AED">AED (UAE Dirham)</option>
@@ -305,15 +364,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* Expiry Alert Thresholds */}
+          {/* 4. Expiry Alert Thresholds */}
           <div className="space-y-3">
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              Expiry Notification Thresholds
+              {strings.settings.expirySection}
             </h3>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">
-                  Urgent Warning (Days)
+                  {strings.settings.urgentDays}
                 </label>
                 <input
                   type="number"
@@ -326,7 +385,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
               <div>
                 <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">
-                  Upcoming Warning (Days)
+                  {strings.settings.warningDays}
                 </label>
                 <input
                   type="number"
@@ -340,29 +399,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* Backup, Export & Reset */}
+          {/* 5. Backup, Export & Reset */}
           <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3">
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              Data Management & Backup
+              {strings.settings.backupSection}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={handleExportBackup}
-                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-slate-300 dark:border-slate-600"
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-slate-200 dark:border-slate-600"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Export JSON</span>
+                <span>{strings.settings.exportBackup}</span>
               </button>
 
-              <label className="cursor-pointer px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-slate-300 dark:border-slate-600">
+              <label className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-slate-200 dark:border-slate-600 cursor-pointer">
                 <Upload className="w-3.5 h-3.5" />
-                <span>Restore Backup</span>
+                <span>{strings.settings.importBackup}</span>
                 <input
                   type="file"
                   accept=".json"
-                  className="hidden"
                   onChange={handleImportBackup}
+                  className="hidden"
                 />
               </label>
 
@@ -373,7 +432,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 title="Wipe store inventory completely clean"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Clear All Data</span>
+                <span>{strings.settings.clearAllData}</span>
               </button>
             </div>
 
@@ -383,7 +442,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 onClick={handleLoadSampleData}
                 className="w-full py-1.5 px-3 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 text-slate-600 dark:text-slate-300 text-[11px] rounded-md border border-slate-200 dark:border-slate-700 transition-colors text-center"
               >
-                Need test data? Click here to load 4 sample products
+                {strings.settings.loadDemoData}
               </button>
             </div>
           </div>
@@ -395,14 +454,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
             >
-              Cancel
+              {strings.settings.cancel}
             </button>
             <button
               type="submit"
-              className="px-5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition-colors flex items-center gap-1 shadow-sm"
+              className="px-5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition-colors flex items-center gap-1 shadow-sm btn-3d-brand"
             >
               {isSaved ? <Check className="w-4 h-4" /> : null}
-              <span>{isSaved ? 'Saved!' : 'Save Settings'}</span>
+              <span>{isSaved ? strings.settings.savedSuccess : strings.settings.saveSettings}</span>
             </button>
           </div>
         </form>

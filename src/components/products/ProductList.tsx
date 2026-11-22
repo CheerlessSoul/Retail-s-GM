@@ -15,6 +15,7 @@ import {
   Package
 } from 'lucide-react';
 import type { Product, ProductBatch } from '../../types';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { AddProductModal } from './AddProductModal';
 import { ProductDetailModal } from './ProductDetailModal';
 import { BarcodeScannerModal } from '../common/BarcodeScannerModal';
@@ -61,6 +62,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   onOpenImportSheet,
   onOpenAddProduct,
 }) => {
+  const { strings } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
@@ -188,7 +190,7 @@ export const ProductList: React.FC<ProductListProps> = ({
             Product Directory
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Catalog products, track batch expiries, scan barcodes, or import packaging details.
+            {strings.products.subtitle}
           </p>
         </div>
 
@@ -200,7 +202,7 @@ export const ProductList: React.FC<ProductListProps> = ({
               title="Import spreadsheet from Excel (.xlsx) or Google Sheets (CSV)"
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="hidden sm:inline">Import Sheet</span>
+              <span className="hidden sm:inline">{strings.products.importSheet}</span>
             </button>
           )}
 
@@ -209,7 +211,7 @@ export const ProductList: React.FC<ProductListProps> = ({
             className="px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors flex items-center gap-1.5 btn-3d-secondary"
           >
             <Barcode className="w-4 h-4 text-brand-600 dark:text-brand-400" />
-            <span className="hidden xs:inline">Scan Code</span>
+            <span className="hidden xs:inline">{strings.products.scanCode}</span>
           </button>
 
           <button
@@ -217,7 +219,7 @@ export const ProductList: React.FC<ProductListProps> = ({
             className="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-md transition-all flex items-center gap-1.5 btn-3d-brand"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Product</span>
+            <span>{strings.products.addProduct}</span>
           </button>
         </div>
       </div>
@@ -233,7 +235,7 @@ export const ProductList: React.FC<ProductListProps> = ({
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name, brand, or barcode..."
+              placeholder={strings.products.searchPlaceholder}
               className="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50/70 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>

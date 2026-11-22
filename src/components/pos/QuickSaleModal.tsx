@@ -16,6 +16,7 @@ import {
 import type { Product, ProductBatch, SaleTransaction } from '../../types';
 import { BarcodeScannerModal } from '../common/BarcodeScannerModal';
 import { sound } from '../../services/soundService';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface QuickSaleModalProps {
   isOpen: boolean;
@@ -40,6 +41,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
   autoAttemptExpiredProductId,
   onProcessSale,
 }) => {
+  const { strings } = useLanguage();
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'card' | 'credit'>('cash');

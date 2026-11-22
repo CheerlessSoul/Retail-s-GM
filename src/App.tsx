@@ -23,8 +23,10 @@ import { StoreSafetyBanner } from './components/common/StoreSafetyBanner';
 import { StoreSetupModal } from './components/onboarding/StoreSetupModal';
 import { ImportSheetModal } from './components/common/ImportSheetModal';
 import { ToastContainer, ToastMessage } from './components/common/Toast';
+import { useLanguage } from './i18n/LanguageContext';
 
 export const App: React.FC = () => {
+  const { setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<ActiveTab>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [batches, setBatches] = useState<ProductBatch[]>([]);
@@ -115,6 +117,9 @@ export const App: React.FC = () => {
         setSettings(safeSettings);
         applyTheme(safeSettings.theme);
         sound.setEnabled(safeSettings.soundEnabled);
+        if (safeSettings.language) {
+          setLanguage(safeSettings.language);
+        }
 
         // First-time onboarding trigger if shop has not been named or onboarded
         if (!safeSettings.isOnboarded || !safeSettings.shopName) {
@@ -202,6 +207,9 @@ export const App: React.FC = () => {
 
     await db.settings.put(newSettings);
     setSettings(newSettings);
+    if (newSettings.language) {
+      setLanguage(newSettings.language);
+    }
     setIsSetupModalOpen(false);
     await refreshData();
 

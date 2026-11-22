@@ -75,6 +75,8 @@ export interface SaleTransaction {
   timestamp: string; // ISO string
 }
 
+export type SupportedLanguage = 'en' | 'hi' | 'ta' | 'mr' | 'pa' | 'my';
+
 export interface ShopSettings {
   id?: string;
   shopName: string;
@@ -89,6 +91,7 @@ export interface ShopSettings {
   enableLowStockAlerts: boolean;
   isOnboarded?: boolean;
   storeType?: 'grocery' | 'pharmacy' | 'general' | 'dairy' | 'other';
+  language?: SupportedLanguage;
 }
 
 export interface OcrExtractedData {

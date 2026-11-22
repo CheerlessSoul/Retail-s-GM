@@ -15,6 +15,7 @@ import {
   Download
 } from 'lucide-react';
 import type { Product, ProductBatch } from '../../types';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface ExpiryDashboardProps {
   products: Product[];
@@ -31,6 +32,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
   onDisposeBatch,
   onClearanceBatch,
 }) => {
+  const { strings } = useLanguage();
   const [filterMode, setFilterMode] = useState<'all' | 'expired' | 'urgent' | 'warning' | 'safe'>('expired');
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -141,7 +143,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
           Smart Expiry Management
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-          Monitor batch-level expiry dates, quarantine expired products, and take immediate clearance actions.
+          {strings.expiry.subtitle}
         </p>
       </div>
 
@@ -155,7 +157,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
                 Action Required: {expiredBatches.length} Expired Product Batches Detected!
               </h3>
               <p className="text-xs text-red-600 dark:text-red-300 mt-0.5">
-                These items are past their expiry date and have been automatically quarantined to prevent accidental sale to customers.
+                {strings.expiry.criticalAlertDesc}
               </p>
             </div>
           </div>
@@ -357,13 +359,13 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="px-4 py-3">Product & Brand</th>
-                <th className="px-4 py-3">Batch No</th>
-                <th className="px-4 py-3">Expiry Date</th>
-                <th className="px-4 py-3">Days Remaining</th>
-                <th className="px-4 py-3">Remaining Stock</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Protection Actions</th>
+                <th className="px-4 py-3">{strings.expiry.tableProduct}</th>
+                <th className="px-4 py-3">{strings.expiry.tableBatch}</th>
+                <th className="px-4 py-3">{strings.expiry.tableExpiry}</th>
+                <th className="px-4 py-3">{strings.expiry.tableDays}</th>
+                <th className="px-4 py-3">{strings.expiry.tableStock}</th>
+                <th className="px-4 py-3">{strings.expiry.tableStatus}</th>
+                <th className="px-4 py-3 text-right">{strings.expiry.tableActions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -477,7 +479,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
                               title="Dispose / Remove from inventory"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
-                              <span>Dispose (Phek Dein)</span>
+                              <span>{strings.expiry.disposeBtn}</span>
                             </button>
 
                             <button
@@ -500,11 +502,11 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
                               className="px-2.5 py-1 text-[11px] font-semibold text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-950/60 hover:bg-orange-200 rounded-lg transition-colors flex items-center gap-1"
                             >
                               <Tag className="w-3.5 h-3.5" />
-                              <span>Clearance Sale (Jaldi Bechein)</span>
+                              <span>{strings.expiry.clearanceBtn}</span>
                             </button>
                           </>
                         ) : (
-                          <span className="text-[11px] text-slate-400 font-medium">Safe on Shelf</span>
+                          <span className="text-[11px] text-slate-400 font-medium">{strings.expiry.safeOnShelf}</span>
                         )}
                       </div>
                     </td>
@@ -532,7 +534,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
               Apply Clearance Discount (FEFO)
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Clear stock quickly before expiry date ({clearanceModalBatch.batch.expiryDate}).
+              {strings.expiry.clearanceModalDesc} ({clearanceModalBatch.batch.expiryDate}).
             </p>
 
             <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-md space-y-1 text-xs">
@@ -552,7 +554,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Discount Percentage
+                {strings.expiry.discountLabel}
               </label>
               <div className="grid grid-cols-4 gap-2 mb-3">
                 {[15, 25, 35, 50].map((pct) => (
@@ -572,7 +574,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
               </div>
 
               <div className="p-3 bg-orange-50 dark:bg-orange-950/30 rounded-xl border border-orange-200 dark:border-orange-900/50 flex justify-between items-center text-xs">
-                <span className="text-orange-800 dark:text-orange-300 font-medium">New Selling Price:</span>
+                <span className="text-orange-800 dark:text-orange-300 font-medium">{strings.expiry.newPriceLabel}</span>
                 <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
                   {currency}
                   {Math.max(1, Math.round(clearanceModalBatch.product.sellingPrice * (1 - discountPercent / 100)))}
@@ -593,7 +595,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
                 onClick={handleApplyClearance}
                 className="px-4 py-2 text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors"
               >
-                Apply Clearance Price
+                {strings.expiry.applyClearanceBtn}
               </button>
             </div>
           </div>

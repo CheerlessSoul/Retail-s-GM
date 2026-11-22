@@ -12,6 +12,7 @@ import {
   FileSpreadsheet 
 } from 'lucide-react';
 import type { ActiveTab } from '../../types';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface NavbarProps {
   activeTab: ActiveTab;
@@ -42,6 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleTheme,
   shopName,
 }) => {
+  const { strings } = useLanguage();
   const totalExpiryBadge = expiredCount + urgentExpiryCount;
 
   return (
@@ -61,14 +63,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-sm sm:text-base tracking-tight text-slate-900 dark:text-slate-100">
-                    Retail's GM
+                    {strings.nav.brand}
                   </span>
                   <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
-                    Manager
+                    {strings.nav.manager}
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[180px]">
-                  {shopName || 'My Store'}
+                  {shopName || strings.nav.myStore}
                 </p>
               </div>
             </div>
@@ -81,11 +83,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className={`px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border ${
                   activeTab === 'products'
                     ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800'
-                    : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:white hover:bg-slate-100 dark:hover:bg-slate-800'
+                    : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <Package className="w-4 h-4 text-brand-600 dark:text-brand-400" />
-                <span>1. Products (Saman)</span>
+                <span>{strings.nav.productsTab}</span>
               </button>
 
               {/* 2. Expiry Management */}
@@ -98,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <Hourglass className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                <span>2. Expiry Control (Kharab Mal)</span>
+                <span>{strings.nav.expiryTab}</span>
                 {totalExpiryBadge > 0 && (
                   <span
                     className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
@@ -122,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <Boxes className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span>3. Stock (Bacha Mal)</span>
+                <span>{strings.nav.stockTab}</span>
                 {lowStockCount > 0 && (
                   <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500 text-white">
                     {lowStockCount}
@@ -140,7 +142,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>4. Profit (Hisab Kitab)</span>
+                <span>{strings.nav.analyticsTab}</span>
               </button>
             </nav>
 
@@ -150,10 +152,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   onClick={onOpenAddProduct}
                   className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 rounded-md text-xs font-semibold flex items-center gap-1 transition-colors shadow-sm"
-                  title="Add a new product"
+                  title={strings.nav.addProduct}
                 >
                   <Plus className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
-                  <span className="hidden sm:inline">Add Product</span>
+                  <span className="hidden sm:inline">{strings.nav.addProduct}</span>
                 </button>
               )}
 
@@ -164,9 +166,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   title="Import Excel or Google Sheets (CSV)"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>Import Sheet</span>
+                  <span>{strings.nav.importSheet}</span>
                 </button>
               )}
+
               {/* Quick Sale Checkout Button */}
               <button
                 onClick={onOpenPos}
@@ -174,15 +177,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 title="Open POS Register / Billing Counter (Space or F2)"
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span className="hidden sm:inline">Billing / Galla</span>
-                <span className="hidden lg:inline text-[10px] opacity-80 bg-brand-700 px-1 py-0.5 rounded">Space</span>
+                <span className="hidden sm:inline">{strings.nav.billingBtn}</span>
+                <span className="hidden lg:inline text-[10px] opacity-80 bg-brand-700 px-1 py-0.5 rounded">{strings.nav.spaceHint}</span>
               </button>
 
               {/* Night Mode Toggle */}
               <button
                 onClick={onToggleTheme}
                 className="p-1.5 rounded-md text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
-                title="Toggle Dark / Light Mode"
+                title={strings.nav.toggleTheme}
               >
                 {theme === 'dark' ? (
                   <Sun className="w-4 h-4 text-amber-400" />
@@ -195,7 +198,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onOpenSettings}
                 className="p-1.5 rounded-md text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
-                title="Application Settings"
+                title={strings.nav.settingsBtn}
               >
                 <Settings className="w-4 h-4" />
               </button>
@@ -220,7 +223,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Package className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Saman</span>
+            <span className="text-[10px] mt-0.5">{strings.nav.mobProducts}</span>
           </button>
 
           {/* 2. Expiry */}
@@ -233,7 +236,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Hourglass className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Expiry</span>
+            <span className="text-[10px] mt-0.5">{strings.nav.mobExpiry}</span>
             {totalExpiryBadge > 0 && (
               <span className="absolute top-1 right-3 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] flex items-center justify-center font-bold">
                 {totalExpiryBadge}
@@ -250,7 +253,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <ShoppingBag className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-bold text-brand-600 dark:text-brand-400 mt-0.5">
-              Galla / Bill
+              {strings.nav.mobGalla}
             </span>
           </button>
 
@@ -264,7 +267,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Boxes className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Stock</span>
+            <span className="text-[10px] mt-0.5">{strings.nav.mobStock}</span>
             {lowStockCount > 0 && (
               <span className="absolute top-1 right-3 w-4 h-4 rounded-full bg-amber-500 text-white text-[9px] flex items-center justify-center font-bold">
                 {lowStockCount}
@@ -282,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <TrendingUp className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Hisab</span>
+            <span className="text-[10px] mt-0.5">{strings.nav.mobHisab}</span>
           </button>
         </div>
       </nav>

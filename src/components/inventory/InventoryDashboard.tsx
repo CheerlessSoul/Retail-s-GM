@@ -14,6 +14,7 @@ import {
   Download 
 } from 'lucide-react';
 import type { Product, ProductBatch, StockHistory, StockChangeType } from '../../types';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface InventoryDashboardProps {
   products: Product[];
@@ -47,6 +48,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   onAdjustStock,
   onAddBatch,
 }) => {
+  const { strings } = useLanguage();
   const [activeTab, setActiveTab] = useState<'inventory' | 'low_stock' | 'history'>('inventory');
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -201,7 +203,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           Inventory Management
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-          Track real-time stock levels, receive low stock alerts, and inspect full stock change audit logs.
+          {strings.inventory.subtitle}
         </p>
       </div>
 
@@ -353,7 +355,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
               <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="px-4 py-3">Timestamp</th>
-                  <th className="px-4 py-3">Product Name</th>
+                  <th className="px-4 py-3">{strings.inventory.tableProduct}</th>
                   <th className="px-4 py-3">Type</th>
                   <th className="px-4 py-3">Quantity Delta</th>
                   <th className="px-4 py-3">Stock Before &rarr; After</th>
@@ -439,11 +441,11 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
               <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="px-4 py-3">Product Name</th>
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">Current Stock</th>
-                  <th className="px-4 py-3">Min Threshold</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Quick Stock Actions</th>
+                  <th className="px-4 py-3">{strings.inventory.tableCategory}</th>
+                  <th className="px-4 py-3">{strings.inventory.tableInStock}</th>
+                  <th className="px-4 py-3">{strings.inventory.tableThreshold}</th>
+                  <th className="px-4 py-3">{strings.inventory.tableStatus}</th>
+                  <th className="px-4 py-3 text-right">{strings.inventory.tableActions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">

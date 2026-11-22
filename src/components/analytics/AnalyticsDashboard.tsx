@@ -26,6 +26,7 @@ import {
   Area,
 } from 'recharts';
 import type { SaleTransaction, Product, ProductBatch } from '../../types';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface AnalyticsDashboardProps {
   sales: SaleTransaction[];
@@ -40,6 +41,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   batches,
   currency,
 }) => {
+  const { strings } = useLanguage();
   const [timeRange, setTimeRange] = useState<'today' | '7days' | 'month' | 'all'>('today');
 
   // Filter sales based on selected timeRange
@@ -165,41 +167,6 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
     }));
   }, [filteredSales, products]);
 
-  // Inventory Health Distribution
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const inventoryHealth = useMemo(() => {
-    let expired = 0;
-    let urgent = 0;
-    let low = 0;
-    let healthy = 0;
-
-    batches.forEach((b) => {
-      if (b.quantity <= 0) return;
-      const exp = new Date(b.expiryDate);
-      exp.setHours(0, 0, 0, 0);
-      const diff = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-      if (diff <= 0) expired += b.quantity;
-      else if (diff <= 7) urgent += b.quantity;
-      else healthy += b.quantity;
-    });
-
-    products.forEach((p) => {
-      if (p.currentStock <= p.minStockThreshold && p.currentStock > 0) {
-        low += p.currentStock;
-      }
-    });
-
-    return [
-      { name: 'Fresh Stock', value: Math.max(0, healthy - low), color: '#10B981' },
-      { name: 'Low Stock Level', value: low, color: '#F59E0B' },
-      { name: 'Expiring in < 7d', value: urgent, color: '#F97316' },
-      { name: 'Expired Stock', value: expired, color: '#EF4444' },
-    ].filter((item) => item.value > 0);
-  }, [batches, products]);
-
   const handleExportSalesCsv = () => {
     if (filteredSales.length === 0) return;
     const headers = ['Sale ID', 'Date & Time', 'Receipt #', 'Customer Name', 'Payment Method', 'Items Count', 'Total Sales Amount', 'Cost of Goods', 'Estimated Profit'];
@@ -226,10 +193,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
   const getTimeRangeLabel = () => {
     switch (timeRange) {
-      case 'today': return 'आज (Today)';
-      case '7days': return 'पिछले 7 दिन (Past 7 Days)';
-      case 'month': return 'इस महीने (This Month)';
-      case 'all': return 'शुरुआत से अब तक (All Time)';
+      case 'today': return strings.analytics.rangeToday;
+      case '7days': return strings.analytics.range7days;
+      case 'month': return strings.analytics.rangeMonth;
+      case 'all': return strings.analytics.rangeAll;
     }
   };
 
@@ -239,10 +206,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            दुकान का हिसाब-किताब (Sales & Profit Ledger)
+            {strings.analytics.title}
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            दुकान की कुल बिक्री, शुद्ध मुनाफा, कटे हुए बिल और माल का सीधा-सरल बहीखाता।
+            {strings.analytics.subtitle}
           </p>
         </div>
 
@@ -255,16 +222,16 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 btn-3d-secondary text-xs disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <Download className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
-            <span className="font-semibold">Export CSV</span>
+            <span className="font-semibold">{strings.analytics.exportCsv}</span>
           </button>
 
           {/* Time Filter Tabs */}
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-md text-xs border border-slate-200 dark:border-slate-700">
             {[
-              { id: 'today', label: 'आज (Today)' },
-              { id: '7days', label: '7 दिन (7 Days)' },
-              { id: 'month', label: 'यह महीना (Month)' },
-              { id: 'all', label: 'पूरा हिसाब (All)' },
+              { id: 'today', label: strings.analytics.rangeToday },
+              { id: '7days', label: strings.analytics.range7days },
+              { id: 'month', label: strings.analytics.rangeMonth },
+              { id: 'all', label: strings.analytics.rangeAll },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -291,21 +258,23 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-sm sm:text-base font-extrabold text-emerald-950 dark:text-emerald-100">
-                आज का हिसाब (Today's Business Summary)
+                {strings.analytics.todaySummaryTitle}
               </h2>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-200 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200">
-                Live Counter
+                {strings.analytics.liveCounter}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-emerald-800 dark:text-emerald-300 mt-1">
               {todayMetrics.revenue > 0 ? (
                 <>
-                  आज दुकान में <strong className="font-bold underline">{currency}{todayMetrics.revenue.toFixed(2)}</strong> की कुल बिक्री हुई है, जिसमें से लगभग <strong className="font-bold text-emerald-700 dark:text-emerald-200 underline">+{currency}{todayMetrics.profit.toFixed(2)}</strong> का शुद्ध मुनाफा आपकी जेब में आया है ({todayMetrics.bills} बिल कटे)।
+                  {strings.analytics.todaySummarySales}
+                  <strong className="font-bold underline">{currency}{todayMetrics.revenue.toFixed(2)}</strong>
+                  {strings.analytics.todaySummaryProfit}
+                  <strong className="font-bold text-emerald-700 dark:text-emerald-200 underline">+{currency}{todayMetrics.profit.toFixed(2)}</strong>
+                  {strings.analytics.todaySummaryBills.replace('{bills}', String(todayMetrics.bills))}
                 </>
               ) : (
-                <>
-                  आज अभी तक कोई नया बिल नहीं कटा है। नया बिल बनाने के लिए ऊपर <strong>"Billing / Galla"</strong> बटन दबाएं (या कीबोर्ड पर Space दबाएं)।
-                </>
+                <>{strings.analytics.todaySummaryEmpty}</>
               )}
             </p>
           </div>
@@ -314,13 +283,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         {/* Today's Mini Metrics Pills */}
         <div className="flex items-center gap-2 shrink-0 self-stretch sm:self-auto justify-end">
           <div className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800 text-center shadow-sm">
-            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">आज की बिक्री</div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{strings.analytics.todaySalesPill}</div>
             <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
               {currency}{todayMetrics.revenue.toFixed(2)}
             </div>
           </div>
           <div className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-center shadow-sm">
-            <div className="text-[10px] text-emerald-100 font-medium">आज का मुनाफा</div>
+            <div className="text-[10px] text-emerald-100 font-medium">{strings.analytics.todayProfitPill}</div>
             <div className="text-xs sm:text-sm font-bold">
               +{currency}{todayMetrics.profit.toFixed(2)}
             </div>
@@ -335,7 +304,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                कुल बिक्री (Total Sales)
+                {strings.analytics.cardTotalSales}
               </span>
               <DollarSign className="w-4 h-4 text-brand-600 dark:text-brand-400" />
             </div>
@@ -345,7 +314,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           </div>
           <div className="pt-2.5 mt-2.5 border-t border-slate-100 dark:border-slate-700/80 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
             <span>{getTimeRangeLabel()}</span>
-            <span className="font-semibold text-slate-700 dark:text-slate-300">{totalOrders} बिलों से</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-300">
+              {strings.analytics.fromBills.replace('{orders}', String(totalOrders))}
+            </span>
           </div>
         </div>
 
@@ -354,10 +325,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                शुद्ध मुनाफा (Net Profit)
+                {strings.analytics.cardNetProfit}
               </span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                {profitMarginPercent}% Margin
+                {profitMarginPercent}% {strings.analytics.marginPill}
               </span>
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
@@ -365,7 +336,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </div>
           </div>
           <div className="pt-2.5 mt-2.5 border-t border-emerald-100 dark:border-emerald-900/60 text-[11px] text-emerald-700 dark:text-emerald-300 flex items-center justify-between">
-            <span>लागत निकालकर जेब में बचा</span>
+            <span>{strings.analytics.cardNetProfitSub}</span>
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           </div>
         </div>
@@ -375,16 +346,16 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                कटे हुए बिल (Total Bills)
+                {strings.analytics.cardTotalBills}
               </span>
               <Receipt className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">
-              {totalOrders} <span className="text-xs font-normal text-slate-500">bills</span>
+              {totalOrders} <span className="text-xs font-normal text-slate-500">{strings.analytics.receiptsUnit}</span>
             </div>
           </div>
           <div className="pt-2.5 mt-2.5 border-t border-slate-100 dark:border-slate-700/80 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
-            <span>औसत बिल (Avg Order):</span>
+            <span>{strings.analytics.avgBillSize}</span>
             <span className="font-bold text-slate-700 dark:text-slate-200">{currency}{avgOrderValue.toFixed(0)}</span>
           </div>
         </div>
@@ -394,7 +365,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                दुकान में कुल माल (Store Stock)
+                {strings.analytics.cardShelfStock}
               </span>
               <Boxes className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
@@ -403,8 +374,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </div>
           </div>
           <div className="pt-2.5 mt-2.5 border-t border-slate-100 dark:border-slate-700/80 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
-            <span>काउंटर/अलमारी पर:</span>
-            <span className="font-bold text-slate-700 dark:text-slate-200">{totalStockUnits} सामान</span>
+            <span>{strings.analytics.itemsOnCounter}:</span>
+            <span className="font-bold text-slate-700 dark:text-slate-200">{totalStockUnits} {strings.common.pieces}</span>
           </div>
         </div>
       </div>
@@ -415,14 +386,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
               <DollarSign className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              कमाई और लागत का आसान हिसाब (Sales vs Wholesale Cost vs Profit)
+              {strings.analytics.breakdownTitle}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              कुल बिक्री में से कितना सामान खरीदने (होलसेल लागत) में गया और कितना आपका शुद्ध मुनाफा बना
+              {strings.analytics.breakdownSub}
             </p>
           </div>
           <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-800 self-start sm:self-auto">
-            मुनाफा दर (Profit Margin): {profitMarginPercent}%
+            {strings.analytics.profitMarginLabel} {profitMarginPercent}%
           </div>
         </div>
 
@@ -435,39 +406,39 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 style={{ width: `${Math.max(15, Math.min(85, 100 - profitMarginPercent))}%` }}
                 title={`Wholesale Cost: ${currency}${totalCostExpenses.toFixed(2)}`}
               >
-                लागत ({100 - profitMarginPercent}%)
+                {strings.analytics.costPortion.replace('{pct}', String(100 - profitMarginPercent))}
               </div>
               <div 
                 className="bg-emerald-600 text-white flex items-center justify-center text-[11px] font-bold transition-all px-2 shadow-sm"
                 style={{ width: `${Math.max(15, Math.min(85, profitMarginPercent))}%` }}
                 title={`Net Profit: ${currency}${totalEstimatedProfit.toFixed(2)}`}
               >
-                शुद्ध मुनाफा ({profitMarginPercent}%)
+                {strings.analytics.profitPortion.replace('{pct}', String(profitMarginPercent))}
               </div>
             </div>
 
             {/* Split Comparison Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
               <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700/60">
-                <div className="text-slate-500 dark:text-slate-400 font-medium">सामान की खरीद लागत (Wholesale Cost)</div>
+                <div className="text-slate-500 dark:text-slate-400 font-medium">{strings.analytics.wholesaleCostCard}</div>
                 <div className="text-lg font-bold text-slate-700 dark:text-slate-300 mt-0.5">
                   {currency}{totalCostExpenses.toFixed(2)}
                 </div>
-                <div className="text-[11px] text-slate-400 mt-1">होलसेलर या डीलर को दिया गया खरीद मूल्य</div>
+                <div className="text-[11px] text-slate-400 mt-1">{strings.analytics.wholesaleCostSub}</div>
               </div>
 
               <div className="p-3 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
-                <div className="text-emerald-800 dark:text-emerald-300 font-medium">आपका शुद्ध मुनाफा (Net Profit)</div>
+                <div className="text-emerald-800 dark:text-emerald-300 font-medium">{strings.analytics.netProfitCard}</div>
                 <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
                   +{currency}{totalEstimatedProfit.toFixed(2)}
                 </div>
-                <div className="text-[11px] text-emerald-700/90 dark:text-emerald-400/90 mt-1">लागत काटकर दुकान की अपनी असली बचत</div>
+                <div className="text-[11px] text-emerald-700/90 dark:text-emerald-400/90 mt-1">{strings.analytics.netProfitSub}</div>
               </div>
             </div>
           </div>
         ) : (
           <div className="py-6 text-center text-xs text-slate-400">
-            चुनी गई अवधि ({getTimeRangeLabel()}) के लिए अभी कोई बिक्री दर्ज नहीं है।
+            {strings.analytics.noSalesForRange}
           </div>
         )}
       </div>
@@ -479,10 +450,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-                दैनिक बिक्री और मुनाफे का ग्राफ (Daily Trend)
+                {strings.analytics.trendTitle}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                तारीख के अनुसार दुकान की कुल बिक्री (हरा क्षेत्र) और शुद्ध मुनाफा
+                {strings.analytics.trendSub}
               </p>
             </div>
             <BarChart3 className="w-4 h-4 text-slate-500" />
@@ -509,7 +480,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   <Area
                     type="monotone"
                     dataKey="revenue"
-                    name="बिक्री (Sales)"
+                    name={strings.analytics.cardTotalSales}
                     stroke="#059669"
                     fill="#ecfdf5"
                     strokeWidth={2}
@@ -517,7 +488,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   <Area
                     type="monotone"
                     dataKey="profit"
-                    name="मुनाफा (Profit)"
+                    name={strings.analytics.cardNetProfit}
                     stroke="#10B981"
                     fill="#d1fae5"
                     strokeWidth={2}
@@ -526,7 +497,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-xs text-slate-400">
-                चुनी गई अवधि के लिए कोई बिक्री दर्ज नहीं है।
+                {strings.analytics.noSalesForRange}
               </div>
             )}
           </div>
@@ -537,10 +508,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-                कैटेगरी अनुसार बिक्री (Category Sales)
+                {strings.analytics.categoryTitle}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                किस प्रकार के सामान से कितनी कमाई हुई
+                {strings.analytics.categorySub}
               </p>
             </div>
             <PieChart className="w-4 h-4 text-slate-500" />
@@ -564,7 +535,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(val: any) => [`${currency}${Number(val || 0).toFixed(2)}`, 'बिक्री']}
+                    formatter={(val: any) => [`${currency}${Number(val || 0).toFixed(2)}`, 'Sales']}
                     contentStyle={{
                       backgroundColor: '#0f172a',
                       borderRadius: '0.375rem',
@@ -576,7 +547,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 </RechartsPie>
               </ResponsiveContainer>
             ) : (
-              <span className="text-xs text-slate-400">अभी कोई बिक्री नहीं हुई है</span>
+              <span className="text-xs text-slate-400">{strings.analytics.noSalesForRange}</span>
             )}
           </div>
         </div>
@@ -588,22 +559,22 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-brand-600 dark:text-brand-400" />
             <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-              सबसे ज्यादा बिकने वाला सामान (Top-Selling Products)
+              {strings.analytics.topProductsTitle}
             </h3>
           </div>
-          <span className="text-xs text-slate-500">सबसे ज्यादा बिकने वाले 5 आइटम</span>
+          <span className="text-xs text-slate-500">{strings.analytics.topProductsSub}</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="px-3.5 py-2.5">नंबर (Rank)</th>
-                <th className="px-3.5 py-2.5">सामान का नाम (Product Name)</th>
-                <th className="px-3.5 py-2.5">कुल बिका (Units Sold)</th>
-                <th className="px-3.5 py-2.5">कुल कमाई (Total Revenue)</th>
-                <th className="px-3.5 py-2.5">बचा मुनाफा (Net Profit)</th>
-                <th className="px-3.5 py-2.5">मुनाफा % (Margin)</th>
+                <th className="px-3.5 py-2.5">{strings.analytics.rankCol}</th>
+                <th className="px-3.5 py-2.5">{strings.analytics.nameCol}</th>
+                <th className="px-3.5 py-2.5">{strings.analytics.soldCol}</th>
+                <th className="px-3.5 py-2.5">{strings.analytics.revCol}</th>
+                <th className="px-3.5 py-2.5">{strings.analytics.profCol}</th>
+                <th className="px-3.5 py-2.5">{strings.analytics.marginCol}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -620,7 +591,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                       {item.name}
                     </td>
                     <td className="px-3.5 py-2.5 font-bold text-slate-800 dark:text-slate-200">
-                      {item.quantity} पीस
+                      {item.quantity} {strings.analytics.piecesUnit}
                     </td>
                     <td className="px-3.5 py-2.5 font-semibold text-brand-600 dark:text-brand-400">
                       {currency}{item.revenue.toFixed(2)}
@@ -638,7 +609,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               {bestSellers.length === 0 && (
                 <tr>
                   <td colSpan={6} className="text-center py-6 text-slate-400">
-                    इस अवधि के लिए कोई बिक्री दर्ज नहीं हुई है।
+                    {strings.analytics.noSalesForRange}
                   </td>
                 </tr>
               )}
