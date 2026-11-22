@@ -199,9 +199,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     <div className="space-y-6">
       {/* Title */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-          Inventory Management
-        </h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">{strings.inventory.title}</h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
           {strings.inventory.subtitle}
         </p>
@@ -211,15 +209,11 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Stock */}
         <div className="p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
-          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-            Total Stock (Bacha Mal)
-          </span>
+          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">{strings.inventory.cardTotalStock}</span>
           <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-1.5">
-            {totalUnits} <span className="text-xs font-normal text-slate-500">units</span>
+            {totalUnits} <span className="text-xs font-normal text-slate-500">{strings.inventory.unitsLabel}</span>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Across {totalSkus} unique products
-          </div>
+          <div className="text-xs text-slate-500 mt-1">{strings.inventory.cardTotalStockSub.replace('{count}', String(totalSkus))}</div>
         </div>
 
         {/* Low Stock Alert */}
@@ -232,43 +226,31 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
-              Kam Stock (Order Now)
-            </span>
+            <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">{strings.inventory.cardLowStock}</span>
             <AlertTriangle className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-1.5">
-            {lowStockProducts.length} <span className="text-xs font-normal text-slate-500">items</span>
+            {lowStockProducts.length} <span className="text-xs font-normal text-slate-500">{strings.common.items}</span>
           </div>
-          <div className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-            {outOfStockProducts.length} items completely out of stock
-          </div>
+          <div className="text-xs text-amber-600 dark:text-amber-400 mt-1">{strings.inventory.cardLowStockSub.replace('{count}', String(outOfStockProducts.length))}</div>
         </div>
 
         {/* Total Cost Valuation */}
         <div className="p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
-          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-            Khareed Laagat (Cost Value)
-          </span>
+          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">{strings.inventory.cardCostValue}</span>
           <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-1.5">
             {currency}{totalCostValuation.toFixed(0)}
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Total money invested in stock
-          </div>
+          <div className="text-xs text-slate-500 mt-1">{strings.inventory.cardCostValueSub}</div>
         </div>
 
         {/* Retail Valuation */}
         <div className="p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm card-3d-hover">
-          <span className="text-[11px] font-bold text-brand-700 dark:text-brand-400 uppercase tracking-wider block">
-            Bikri Muly (Selling Value)
-          </span>
+          <span className="text-[11px] font-bold text-brand-700 dark:text-brand-400 uppercase tracking-wider block">{strings.inventory.cardRetailValue}</span>
           <div className="text-xl sm:text-2xl font-extrabold text-brand-600 dark:text-brand-400 mt-1.5">
             {currency}{totalRetailValuation.toFixed(0)}
           </div>
-          <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-            Expected Munafa: +{currency}{(totalRetailValuation - totalCostValuation).toFixed(0)}
-          </div>
+          <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{strings.inventory.cardExpectedProfit.replace('{currency}', currency).replace('{amount}', (totalRetailValuation - totalCostValuation).toFixed(0))}</div>
         </div>
       </div>
 
@@ -287,7 +269,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
               }`}
             >
               <Package className="w-4 h-4" />
-              <span>All Stock (Dukan Ka Mal)</span>
+              <span>{strings.inventory.tabAllStock}</span>
             </button>
 
             <button
@@ -299,7 +281,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
               }`}
             >
               <AlertTriangle className="w-4 h-4" />
-              <span>Low Stock Alerts ({lowStockProducts.length})</span>
+              <span>{strings.inventory.tabLowStock} ({lowStockProducts.length})</span>
             </button>
 
             <button
@@ -311,7 +293,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
               }`}
             >
               <History className="w-4 h-4" />
-              <span>Stock History (Aana/Jana)</span>
+              <span>{strings.inventory.tabHistory}</span>
             </button>
           </div>
 
@@ -323,7 +305,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search product or history..."
+                placeholder={strings.inventory.searchPlaceholder}
                 className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
@@ -333,7 +315,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
               title="Export report to CSV"
             >
               <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Export CSV</span>
+              <span className="hidden sm:inline">{strings.inventory.exportCsv}</span>
             </button>
           </div>
         </div>
@@ -440,7 +422,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3">Product Name</th>
+                  <th className="px-4 py-3">{strings.inventory.tableProduct}</th>
                   <th className="px-4 py-3">{strings.inventory.tableCategory}</th>
                   <th className="px-4 py-3">{strings.inventory.tableInStock}</th>
                   <th className="px-4 py-3">{strings.inventory.tableThreshold}</th>
@@ -491,17 +473,11 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                       </td>
                       <td className="px-4 py-3">
                         {isOut ? (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300">
-                            Out of Stock
-                          </span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300">{strings.inventory.statusOut}</span>
                         ) : isLow ? (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
-                            Low Stock Alert
-                          </span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">{strings.inventory.statusLow}</span>
                         ) : (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
-                            In Stock
-                          </span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">{strings.inventory.statusInStock}</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -511,7 +487,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                             className="px-2.5 py-1 text-[11px] font-medium text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-950/50 hover:bg-brand-100 rounded-lg transition-colors flex items-center gap-1"
                           >
                             <Plus className="w-3.5 h-3.5" />
-                            <span>Restock</span>
+                            <span>{strings.inventory.btnRestock}</span>
                           </button>
 
                           <button
@@ -519,7 +495,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                             className="px-2.5 py-1 text-[11px] font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-1"
                           >
                             <SlidersHorizontal className="w-3.5 h-3.5" />
-                            <span>Adjust</span>
+                            <span>{strings.inventory.btnAdjust}</span>
                           </button>
                         </div>
                       </td>

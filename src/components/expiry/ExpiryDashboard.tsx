@@ -139,9 +139,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
     <div className="space-y-6">
       {/* Title */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-          Smart Expiry Management
-        </h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">{strings.expiry.title}</h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
           {strings.expiry.subtitle}
         </p>
@@ -161,12 +159,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setFilterMode('expired')}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-colors shrink-0 shadow-sm"
-          >
-            Review Expired Items
-          </button>
+          <button onClick={() => setFilterMode('expired')} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-colors shrink-0 shadow-sm">{strings.expiry.btnReviewExpired}</button>
         </div>
       )}
 
@@ -182,17 +175,13 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-red-700 dark:text-red-400">
-              Quarantined Expired
-            </span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-red-700 dark:text-red-400">{strings.expiry.cardExpired}</span>
             <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
           </div>
           <div className="text-xl sm:text-2xl font-extrabold text-red-700 dark:text-red-300 mt-1.5">
             {expiredBatches.length} <span className="text-xs font-normal text-slate-500">batches</span>
           </div>
-          <div className="text-xs text-red-600 dark:text-red-400 mt-1">
-            Cost Loss: {currency}{expiredLossValue.toFixed(0)}
-          </div>
+          <div className="text-xs text-red-600 dark:text-red-400 mt-1">{strings.expiry.cardExpiredSub.replace('{currency}', currency).replace('{val}', expiredLossValue.toFixed(0))}</div>
         </div>
 
         {/* Urgent Card (<7 Days) */}
@@ -205,17 +194,13 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400">
-              Expiring in &le; 7 Days
-            </span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400">{strings.expiry.cardUrgent}</span>
             <AlertTriangle className="w-4 h-4 text-orange-500" />
           </div>
           <div className="text-xl sm:text-2xl font-extrabold text-orange-600 dark:text-orange-400 mt-1.5">
             {urgentBatches.length} <span className="text-xs font-normal text-slate-500">batches</span>
           </div>
-          <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-            At Risk: {currency}{atRiskValue.toFixed(0)}
-          </div>
+          <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">{strings.expiry.cardUrgentSub.replace('{currency}', currency).replace('{val}', atRiskValue.toFixed(0))}</div>
         </div>
 
         {/* Warning Card (<30 Days) */}
@@ -228,17 +213,13 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
-              Expiring in &le; 30 Days
-            </span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">{strings.expiry.cardWarning}</span>
             <Clock className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-1.5">
             {warningBatches.length} <span className="text-xs font-normal text-slate-500">batches</span>
           </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Monitor & plan reorders
-          </div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{strings.expiry.cardWarningSub}</div>
         </div>
 
         {/* Safe Stock */}
@@ -251,17 +232,13 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-              Fresh & Safe Stock
-            </span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{strings.expiry.cardSafe}</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1.5">
             {safeBatches.length} <span className="text-xs font-normal text-slate-500">batches</span>
           </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Shelf life &gt; 30 days
-          </div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{strings.expiry.cardSafeSub}</div>
         </div>
       </div>
 
@@ -279,7 +256,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
                   : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
               }`}
             >
-              <span>Expired ({expiredBatches.length})</span>
+              <span>{strings.expiry.filterExpired} ({expiredBatches.length})</span>
             </button>
 
             <button
@@ -290,7 +267,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
                   : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
               }`}
             >
-              <span>&le; 7 Days ({urgentBatches.length})</span>
+              <span>{strings.expiry.filterUrgent} ({urgentBatches.length})</span>
             </button>
 
             <button
@@ -301,7 +278,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
                   : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
               }`}
             >
-              <span>&le; 30 Days ({warningBatches.length})</span>
+              <span>{strings.expiry.filterWarning} ({warningBatches.length})</span>
             </button>
 
             <button
@@ -312,7 +289,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
                   : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
               }`}
             >
-              <span>Safe Stock ({safeBatches.length})</span>
+              <span>{strings.expiry.filterSafe} ({safeBatches.length})</span>
             </button>
 
             <button
@@ -323,7 +300,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
                   : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
               }`}
             >
-              All Batches ({activeBatches.length})
+              {strings.expiry.filterAll} ({activeBatches.length})
             </button>
           </div>
 
@@ -335,7 +312,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search product or batch..."
+                placeholder={strings.expiry.searchPlaceholder}
                 className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
@@ -345,7 +322,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({
               title="Export Expiry Report to CSV"
             >
               <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Export CSV</span>
+              <span className="hidden sm:inline">{strings.expiry.exportCsv}</span>
             </button>
           </div>
         </div>

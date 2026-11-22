@@ -50,57 +50,58 @@ export const Navbar: React.FC<NavbarProps> = ({
     <>
       {/* ======================================================== */}
       {/* DESKTOP & TABLET TOP NAVIGATION BAR (md and above)       */}
+      {/* Modern floating bar with top breathing space             */}
       {/* ======================================================== */}
-      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <header className="sticky top-0 z-30 pt-2.5 sm:pt-3.5 pb-2 px-3 sm:px-6 lg:px-8 bg-slate-50/90 dark:bg-[#0b1320]/90 backdrop-blur-md transition-all">
+        <div className="max-w-7xl mx-auto bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm px-3 sm:px-4 lg:px-5">
+          <div className="flex items-center justify-between h-14 sm:h-16 gap-2 flex-nowrap w-full">
             
             {/* Logo and Shop Brand */}
-            <div className="flex items-center space-x-3 cursor-pointer shrink-0" onClick={() => onTabChange('products')}>
-              <div className="w-9 h-9 rounded-lg bg-brand-600 text-white flex items-center justify-center font-extrabold text-base shadow-sm">
+            <div className="flex items-center space-x-2.5 cursor-pointer shrink-0" onClick={() => onTabChange('products')}>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center font-black text-sm sm:text-base shadow-sm shrink-0">
                 R
               </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-sm sm:text-base tracking-tight text-slate-900 dark:text-slate-100">
+              <div className="shrink-0">
+                <div className="flex items-center gap-1 sm:gap-1.5">
+                  <span className="font-bold text-xs sm:text-sm lg:text-base tracking-tight text-slate-900 dark:text-slate-100 whitespace-nowrap">
                     {strings.nav.brand}
                   </span>
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
+                  <span className="text-[10px] font-semibold px-1 sm:px-1.5 py-0.2 rounded border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 whitespace-nowrap">
                     {strings.nav.manager}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[180px]">
+                <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[110px] sm:max-w-[160px]">
                   {shopName || strings.nav.myStore}
                 </p>
               </div>
             </div>
 
             {/* Main Navigation (The 4 core features buttons) */}
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden md:flex items-center space-x-1 shrink-0 overflow-x-auto scrollbar-none">
               {/* 1. Product Management */}
               <button
                 onClick={() => onTabChange('products')}
-                className={`px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border ${
+                className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border whitespace-nowrap shrink-0 ${
                   activeTab === 'products'
-                    ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800'
+                    ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800 shadow-sm'
                     : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <Package className="w-4 h-4 text-brand-600 dark:text-brand-400" />
-                <span>{strings.nav.productsTab}</span>
+                <Package className="w-4 h-4 text-brand-600 dark:text-brand-400 shrink-0" />
+                <span className="whitespace-nowrap">{strings.nav.productsTab}</span>
               </button>
 
               {/* 2. Expiry Management */}
               <button
                 onClick={() => onTabChange('expiry')}
-                className={`relative px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border ${
+                className={`relative px-2.5 lg:px-3 py-1.5 rounded-xl text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border whitespace-nowrap shrink-0 ${
                   activeTab === 'expiry'
-                    ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800'
+                    ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800 shadow-sm'
                     : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <Hourglass className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                <span>{strings.nav.expiryTab}</span>
+                <Hourglass className="w-4 h-4 text-orange-600 dark:text-orange-400 shrink-0" />
+                <span className="whitespace-nowrap">{strings.nav.expiryTab}</span>
                 {totalExpiryBadge > 0 && (
                   <span
                     className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
@@ -117,14 +118,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* 3. Inventory Management */}
               <button
                 onClick={() => onTabChange('inventory')}
-                className={`relative px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border ${
+                className={`relative px-2.5 lg:px-3 py-1.5 rounded-xl text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border whitespace-nowrap shrink-0 ${
                   activeTab === 'inventory'
-                    ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800'
+                    ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800 shadow-sm'
                     : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <Boxes className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span>{strings.nav.stockTab}</span>
+                <Boxes className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                <span className="whitespace-nowrap">{strings.nav.stockTab}</span>
                 {lowStockCount > 0 && (
                   <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500 text-white">
                     {lowStockCount}
@@ -135,56 +136,56 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* 4. Business Analytics */}
               <button
                 onClick={() => onTabChange('analytics')}
-                className={`px-3 py-1.5 rounded-md text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border ${
+                className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs lg:text-sm font-semibold transition-all flex items-center gap-1.5 border whitespace-nowrap shrink-0 ${
                   activeTab === 'analytics'
-                    ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800'
+                    ? 'bg-brand-50 text-brand-700 border-brand-300 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-800 shadow-sm'
                     : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>{strings.nav.analyticsTab}</span>
+                <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span className="whitespace-nowrap">{strings.nav.analyticsTab}</span>
               </button>
             </nav>
 
             {/* Quick Actions (Add Product, Import Sheet, POS, Dark Mode, Settings) */}
-            <div className="flex items-center space-x-1.5 sm:space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
               {onOpenAddProduct && (
                 <button
                   onClick={onOpenAddProduct}
-                  className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 rounded-md text-xs font-semibold flex items-center gap-1 transition-colors shadow-sm"
+                  className="px-2 sm:px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors shadow-sm whitespace-nowrap shrink-0"
                   title={strings.nav.addProduct}
                 >
-                  <Plus className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
-                  <span className="hidden sm:inline">{strings.nav.addProduct}</span>
+                  <Plus className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400 shrink-0" />
+                  <span className="hidden xl:inline whitespace-nowrap">{strings.nav.addProduct}</span>
                 </button>
               )}
 
               {onOpenImportSheet && (
                 <button
                   onClick={onOpenImportSheet}
-                  className="hidden md:flex px-2.5 py-1.5 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-md text-xs font-semibold items-center gap-1 transition-colors shadow-sm"
+                  className="hidden xl:flex px-2.5 py-1.5 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold items-center gap-1 transition-colors shadow-sm whitespace-nowrap shrink-0"
                   title="Import Excel or Google Sheets (CSV)"
                 >
-                  <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>{strings.nav.importSheet}</span>
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span className="whitespace-nowrap">{strings.nav.importSheet}</span>
                 </button>
               )}
 
               {/* Quick Sale Checkout Button */}
               <button
                 onClick={onOpenPos}
-                className="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-md text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 btn-3d-brand"
+                className="px-2.5 sm:px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 btn-3d-brand whitespace-nowrap shrink-0 shadow-sm"
                 title="Open POS Register / Billing Counter (Space or F2)"
               >
-                <ShoppingBag className="w-4 h-4" />
-                <span className="hidden sm:inline">{strings.nav.billingBtn}</span>
-                <span className="hidden lg:inline text-[10px] opacity-80 bg-brand-700 px-1 py-0.5 rounded">{strings.nav.spaceHint}</span>
+                <ShoppingBag className="w-4 h-4 shrink-0" />
+                <span className="hidden sm:inline whitespace-nowrap">{strings.nav.billingBtn}</span>
+                <span className="hidden 2xl:inline text-[10px] opacity-80 bg-brand-700 px-1 py-0.5 rounded whitespace-nowrap">{strings.nav.spaceHint}</span>
               </button>
 
               {/* Night Mode Toggle */}
               <button
                 onClick={onToggleTheme}
-                className="p-1.5 rounded-md text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                className="p-1.5 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700 shrink-0"
                 title={strings.nav.toggleTheme}
               >
                 {theme === 'dark' ? (
@@ -197,7 +198,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Settings */}
               <button
                 onClick={onOpenSettings}
-                className="p-1.5 rounded-md text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                className="p-1.5 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700 shrink-0"
                 title={strings.nav.settingsBtn}
               >
                 <Settings className="w-4 h-4" />
@@ -223,7 +224,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Package className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">{strings.nav.mobProducts}</span>
+            <span className="text-[10px] mt-0.5 whitespace-nowrap">{strings.nav.mobProducts}</span>
           </button>
 
           {/* 2. Expiry */}
@@ -236,28 +237,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Hourglass className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">{strings.nav.mobExpiry}</span>
+            <span className="text-[10px] mt-0.5 whitespace-nowrap">{strings.nav.mobExpiry}</span>
             {totalExpiryBadge > 0 && (
-              <span className="absolute top-1 right-3 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] flex items-center justify-center font-bold">
+              <span className="absolute top-1 right-2 px-1 py-0.2 rounded-full text-[9px] font-bold bg-red-600 text-white">
                 {totalExpiryBadge}
               </span>
             )}
           </button>
 
-          {/* Quick Sale POS Center Button */}
+          {/* 3. Quick Sale / Galla (Center action) */}
           <button
             onClick={onOpenPos}
-            className="flex flex-col items-center justify-center -mt-3 py-1"
+            className="flex flex-col items-center justify-center -mt-3.5 bg-brand-600 text-white p-2.5 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-transform active:scale-95"
           >
-            <div className="w-10 h-10 rounded-lg bg-brand-600 text-white flex items-center justify-center btn-3d-brand shadow-md">
-              <ShoppingBag className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-bold text-brand-600 dark:text-brand-400 mt-0.5">
-              {strings.nav.mobGalla}
-            </span>
+            <ShoppingBag className="w-5 h-5" />
+            <span className="text-[9px] mt-0.5 font-bold whitespace-nowrap">{strings.nav.mobGalla}</span>
           </button>
 
-          {/* 3. Inventory */}
+          {/* 4. Stock / Inventory */}
           <button
             onClick={() => onTabChange('inventory')}
             className={`relative flex flex-col items-center justify-center py-1.5 transition-colors ${
@@ -267,15 +264,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Boxes className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">{strings.nav.mobStock}</span>
+            <span className="text-[10px] mt-0.5 whitespace-nowrap">{strings.nav.mobStock}</span>
             {lowStockCount > 0 && (
-              <span className="absolute top-1 right-3 w-4 h-4 rounded-full bg-amber-500 text-white text-[9px] flex items-center justify-center font-bold">
+              <span className="absolute top-1 right-2 px-1 py-0.2 rounded-full text-[9px] font-bold bg-amber-500 text-white">
                 {lowStockCount}
               </span>
             )}
           </button>
 
-          {/* 4. Analytics */}
+          {/* 5. Business Analytics (Hisab) */}
           <button
             onClick={() => onTabChange('analytics')}
             className={`flex flex-col items-center justify-center py-1.5 transition-colors ${
@@ -285,7 +282,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <TrendingUp className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">{strings.nav.mobHisab}</span>
+            <span className="text-[10px] mt-0.5 whitespace-nowrap">{strings.nav.mobHisab}</span>
           </button>
         </div>
       </nav>
