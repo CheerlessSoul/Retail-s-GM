@@ -14,6 +14,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import type { ShopSettings } from '../../types';
+import { loadSampleDemoData } from '../../db/seedData';
 
 interface StoreSetupModalProps {
   isOpen: boolean;
@@ -267,57 +268,91 @@ export const StoreSetupModal: React.FC<StoreSetupModalProps> = ({
               </div>
 
               {/* Option Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                {/* Option 1: Import Sheet */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                {/* Option 1: Instant Demo Store */}
                 <div
-                  onClick={() => handleFinish('import_sheet')}
-                  className="p-4 rounded-xl border border-brand-300 dark:border-brand-700/80 bg-brand-50/50 dark:bg-brand-950/20 hover:bg-brand-50 dark:hover:bg-brand-950/40 hover:border-brand-500 transition-all cursor-pointer flex flex-col justify-between group shadow-sm"
+                  onClick={async () => {
+                    setIsSubmitting(true);
+                    await loadSampleDemoData();
+                    window.location.reload();
+                  }}
+                  className="p-3.5 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50/60 dark:bg-emerald-950/30 hover:border-emerald-500 transition-all cursor-pointer flex flex-col justify-between group shadow-sm"
                 >
                   <div>
-                    <div className="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/60 text-brand-700 dark:text-brand-300 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
-                      <FileSpreadsheet className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+                      <Sparkles className="w-4 h-4" />
                     </div>
-                    <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">
-                      Import Sheet (Excel / CSV)
-                    </h3>
+                    <div className="flex items-center gap-1">
+                      <h3 className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                        1-Click Demo Store
+                      </h3>
+                      <span className="text-[9px] px-1 py-0.2 bg-emerald-600 text-white font-bold rounded">Fast</span>
+                    </div>
                     <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-1 leading-relaxed">
-                      Upload an Excel (<span className="font-semibold text-brand-600">.xlsx/.xls</span>) or Google Sheets file. All products, prices, stock and expiry dates will be added automatically.
+                      Instant 10 products (Milk, Atta, Oil) with active expiry alerts, low stock and sales hisab. Perfect for judges.
                     </p>
                   </div>
 
                   <button
                     type="button"
                     disabled={isSubmitting}
-                    className="mt-4 w-full py-1.5 px-3 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm"
+                    className="mt-3 w-full py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm"
                   >
-                    <span>Import Sheet Now</span>
+                    <span>Load Demo Store</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                {/* Option 2: Add Manually / Barcode */}
+                {/* Option 2: Import Sheet */}
                 <div
-                  onClick={() => handleFinish('add_product')}
-                  className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all cursor-pointer flex flex-col justify-between group shadow-sm"
+                  onClick={() => handleFinish('import_sheet')}
+                  className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-500 bg-white dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all cursor-pointer flex flex-col justify-between group shadow-sm"
                 >
                   <div>
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
-                      <PlusCircle className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-lg bg-brand-100 dark:bg-brand-900/60 text-brand-700 dark:text-brand-300 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+                      <FileSpreadsheet className="w-4 h-4" />
                     </div>
-                    <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">
-                      Add Product Manually
+                    <h3 className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                      Import Sheet (.xlsx)
                     </h3>
                     <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-1 leading-relaxed">
-                      Type product details or use camera to scan product barcode & read expiry date from package label.
+                      Upload an Excel or Google Sheets file. Products, prices, stock and expiries added automatically.
                     </p>
                   </div>
 
                   <button
                     type="button"
                     disabled={isSubmitting}
-                    className="mt-4 w-full py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm"
+                    className="mt-3 w-full py-1.5 px-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm"
                   >
-                    <span>Add First Product</span>
+                    <span>Import Sheet</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Option 3: Add Manually */}
+                <div
+                  onClick={() => handleFinish('add_product')}
+                  className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-400 bg-white dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all cursor-pointer flex flex-col justify-between group shadow-sm"
+                >
+                  <div>
+                    <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+                      <PlusCircle className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                      Add Manually
+                    </h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-1 leading-relaxed">
+                      Type product details or use camera scanner to scan product barcode and add custom batches.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={isSubmitting}
+                    className="mt-3 w-full py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm"
+                  >
+                    <span>Add Product</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

@@ -151,6 +151,25 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     }
   };
 
+  
+  const handleShareWholesalerPo = () => {
+    if (lowStockProducts.length === 0) return;
+    const lines = [
+      `*WHOLESALE REORDER LIST - RETAIL'S GM*`,
+      `Date: ${new Date().toLocaleDateString()}`,
+      `--------------------------------`,
+      ...lowStockProducts.map((p, idx) => {
+        const need = Math.max(p.minStockThreshold - p.currentStock, 1);
+        return `${idx + 1}. ${p.name} (${p.brand}) - Order: ${need} ${p.unit} (In Stock: ${p.currentStock})`;
+      }),
+      `--------------------------------`,
+      `Total items to supply: ${lowStockProducts.length}`,
+      `Generated via Retail's GM Store Manager`,
+    ];
+    const text = encodeURIComponent(lines.join('\n'));
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
   const handleExportCsv = () => {
     if (activeTab === 'history') {
       const headers = ['Timestamp', 'Product Name', 'Change Type', 'Quantity Delta', 'Stock Before', 'Stock After', 'Reason'];

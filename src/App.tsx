@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './db';
-import { initializeDatabase } from './db/seedData';
+import { initializeDatabase, loadSampleDemoData } from './db/seedData';
 import { sound } from './services/soundService';
 import type { 
   Product, 
@@ -142,6 +142,20 @@ export const App: React.FC = () => {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+    }
+  };
+
+  
+  const handleLoadDemoData = async () => {
+    setIsLoading(true);
+    try {
+      await loadSampleDemoData();
+      await refreshData();
+      addToast('Demo Store Loaded!', 'Realistic grocery products, expiries, and hisab metrics are active.', 'success');
+    } catch (err) {
+      addToast('Failed to load demo', err instanceof Error ? err.message : 'Unknown error', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -379,8 +393,7 @@ export const App: React.FC = () => {
         urgentExpiryCount={urgentExpiryCount}
         lowStockCount={lowStockCount}
         onOpenPos={() => setIsPosOpen(true)}
-        onOpenAddProduct={() => setIsAddProductOpen(true)}
-        onOpenImportSheet={() => setIsImportSheetOpen(true)}
+        onLoadDemoData={products.length === 0 ? handleLoadDemoData : undefined}
         onOpenSettings={() => setIsSettingsOpen(true)}
         theme={settings.theme}
         onToggleTheme={handleToggleTheme}

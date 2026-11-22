@@ -389,7 +389,6 @@ export const ProductList: React.FC<ProductListProps> = ({
                   <th className="px-3.5 py-2.5">{strings.products.costPrice}</th>
                   <th className="px-3.5 py-2.5">{strings.products.sellingPrice}</th>
                   <th className="px-3.5 py-2.5">{strings.products.earliestExpiry}</th>
-                  <th className="px-3.5 py-2.5 text-right">{strings.products.actions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -428,11 +427,6 @@ export const ProductList: React.FC<ProductListProps> = ({
                       </td>
                       <td className="px-3.5 py-2.5">
                         {earliest ? getExpiryBadge(earliest.expiryDate) : '-'}
-                      </td>
-                      <td className="px-3.5 py-2.5 text-right">
-                        <span className="text-brand-600 dark:text-brand-400 font-medium inline-flex items-center gap-0.5">
-                          {strings.products.detailsLabel} <ChevronRight className="w-3.5 h-3.5" />
-                        </span>
                       </td>
                     </tr>
                   );

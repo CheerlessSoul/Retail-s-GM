@@ -54,6 +54,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
   const [completedSale, setCompletedSale] = useState<SaleTransaction | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tenderedAmount, setTenderedAmount] = useState<number | null>(null);
 
   if (!isOpen) return null;
 
@@ -180,7 +181,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
       const transaction = await onProcessSale(items, paymentMethod, customerName);
       sound.playSuccessChime();
       setCompletedSale(transaction);
-      setCart([]);
+      setCart([]); setTenderedAmount(null);
     } catch (err) {
       sound.playAlertBuzz();
       setError(err instanceof Error ? err.message : 'Sale transaction failed');
@@ -586,10 +587,10 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                     </span>
                     <div className="grid grid-cols-4 gap-1.5 text-xs font-semibold">
                       {[
-                        { id: 'cash', label: 'Cash (Nagad)' },
+                        { id: 'cash', label: 'Cash' },
                         { id: 'upi', label: 'UPI / QR' },
                         { id: 'card', label: 'Card' },
-                        { id: 'credit', label: 'Khata (Udhar)' },
+                        { id: 'credit', label: 'Khata / Credit' },
                       ].map((p) => (
                         <button
                           key={p.id}
