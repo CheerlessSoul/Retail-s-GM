@@ -11,12 +11,14 @@ import {
   Store, 
   Check, 
   ShieldCheck,
-  Globe
+  Globe,
+  Sparkles
 } from 'lucide-react';
 import type { ShopSettings, SupportedLanguage } from '../../types';
 import { db } from '../../db';
 import { loadSampleDemoData } from '../../db/seedData';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { getStoredApiKey, setStoredApiKey } from '../../services/aiService';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -47,6 +49,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [theme, setTheme] = useState(settings.theme);
   const [soundEnabled, setSoundEnabled] = useState(settings.soundEnabled);
   const [isSaved, setIsSaved] = useState(false);
+  const [aiApiKey, setAiApiKey] = useState(getStoredApiKey());
 
   if (!isOpen) return null;
 
@@ -67,6 +70,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       isOnboarded: true,
     };
     await onSaveSettings(updated);
+    setStoredApiKey(aiApiKey);
     setLanguage(selectedLanguage);
     onThemeToggle(theme);
     setIsSaved(true);
@@ -396,6 +400,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
                 />
               </div>
+            </div>
+          </div>
+
+          
+          {/* 4.5 Retail AI Copilot & OpenRouter Configuration */}
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
+                <span>Retail AI Copilot (OpenRouter)</span>
+              </h3>
+              <span className="text-[10px] text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 px-2 py-0.5 rounded-full font-semibold">
+                Free Tier Active
+              </span>
+            </div>
+            <div>
+              <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">
+                OpenRouter API Key
+              </label>
+              <input
+                type="password"
+                value={aiApiKey}
+                onChange={(e) => setAiApiKey(e.target.value)}
+                placeholder="sk-openrouter-key-..."
+                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-mono"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">
+                Pre-configured with free OpenRouter routing. Your key is securely stored in your local browser.
+              </p>
             </div>
           </div>
 

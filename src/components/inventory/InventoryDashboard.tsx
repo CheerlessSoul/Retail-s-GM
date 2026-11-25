@@ -346,21 +346,21 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
           <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
             <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-              Audit History Log ({filteredHistory.length} events)
+              {(strings.inventory as any).historyTitle || "Audit History Log"} ({filteredHistory.length})
             </h3>
-            <span className="text-xs text-slate-500">Every restock, sale, and adjustment is recorded</span>
+            <span className="text-xs text-slate-500">{(strings.inventory as any).historySubtitle || "Every restock, sale, and adjustment is recorded"}</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3">Timestamp</th>
+                  <th className="px-4 py-3">{(strings.inventory as any).colTimestamp || "Timestamp"}</th>
                   <th className="px-4 py-3">{strings.inventory.tableProduct}</th>
-                  <th className="px-4 py-3">Type</th>
-                  <th className="px-4 py-3">Quantity Delta</th>
-                  <th className="px-4 py-3">Stock Before &rarr; After</th>
-                  <th className="px-4 py-3">Reason / Details</th>
+                  <th className="px-4 py-3">{(strings.inventory as any).colType || "Type"}</th>
+                  <th className="px-4 py-3">{(strings.inventory as any).colDelta || "Quantity Delta"}</th>
+                  <th className="px-4 py-3">{(strings.inventory as any).colChange || "Stock Before → After"}</th>
+                  <th className="px-4 py-3">{(strings.inventory as any).colReason || "Reason / Details"}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -426,7 +426,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                 {filteredHistory.length === 0 && (
                   <tr>
                     <td colSpan={6} className="text-center py-8 text-slate-400">
-                      No stock history log entries recorded yet.
+                      {(strings.inventory as any).historyEmpty || "No stock history log entries recorded yet."}
                     </td>
                   </tr>
                 )}

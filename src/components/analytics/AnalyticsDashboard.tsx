@@ -27,6 +27,7 @@ import {
 } from 'recharts';
 import type { SaleTransaction, Product, ProductBatch } from '../../types';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { AiBusinessAdvisor } from './AiBusinessAdvisor';
 
 interface AnalyticsDashboardProps {
   sales: SaleTransaction[];
@@ -379,6 +380,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           </div>
         </div>
       </div>
+
+      
+      {/* 3.5 AI Store Business Advisor & Recommendations */}
+      <AiBusinessAdvisor
+        products={products}
+        batches={batches}
+        sales={sales}
+        currency={currency}
+      />
 
       {/* 4. Visual Profit & Wholesale Cost Breakdown (Very easy to understand) */}
       <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 card-3d">

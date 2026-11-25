@@ -140,6 +140,26 @@ export const ImportSheetModal: React.FC<ImportSheetModalProps> = ({
         const name = String(findField(row, ['productname', 'itemname', 'name', 'item', 'product', 'description', 'saman'])).trim();
         if (!name) return; // skip empty rows without item name
 
+        // Skip metadata, title banner, and summary rows from spreadsheets
+        const lowerName = name.toLowerCase();
+        const isMetadataRow =
+          lowerName.includes('master catalog') ||
+          lowerName.includes('automated stock') ||
+          lowerName.includes('margin analysis') ||
+          lowerName.includes('sheet alerts') ||
+          lowerName.startsWith('total ') ||
+          lowerName === 'total skus' ||
+          lowerName === 'total' ||
+          lowerName === 'grand total' ||
+          lowerName === 'subtotal' ||
+          lowerName === 'sub total' ||
+          lowerName === 'summary' ||
+          lowerName.startsWith('note:') ||
+          lowerName.startsWith('notes:') ||
+          lowerName.startsWith('currency:');
+
+        if (isMetadataRow) return;
+
         const brand = String(findField(row, ['brand', 'company', 'manufacturer', 'make'])).trim() || 'General';
         const category = String(findField(row, ['category', 'dept', 'type', 'group'])).trim() || 'General';
         const barcode = String(findField(row, ['barcode', 'code', 'upc', 'ean', 'sku'])).trim();

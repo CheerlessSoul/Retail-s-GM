@@ -24,6 +24,7 @@ import { StoreSetupModal } from './components/onboarding/StoreSetupModal';
 import { ImportSheetModal } from './components/common/ImportSheetModal';
 import { ToastContainer, ToastMessage } from './components/common/Toast';
 import { useLanguage } from './i18n/LanguageContext';
+import { RetailAiAssistant } from './components/ai/RetailAiAssistant';
 
 export const App: React.FC = () => {
   const { setLanguage } = useLanguage();
@@ -103,8 +104,38 @@ export const App: React.FC = () => {
         db.settings.toArray(),
       ]);
 
-      setProducts(allProducts);
-      setBatches(allBatches);
+      // Auto-sanitize: remove any accidentally imported spreadsheet header/metadata rows
+      const junkProducts = allProducts.filter((p) => {
+        const lower = p.name.toLowerCase();
+        return (
+          lower.includes('master catalog') ||
+          lower.includes('automated stock') ||
+          lower.includes('margin analysis') ||
+          lower === 'total skus' ||
+          lower === 'grand total'
+        );
+      });
+
+      if (junkProducts.length > 0) {
+        await db.transaction('rw', db.products, db.batches, async () => {
+          for (const jp of junkProducts) {
+            await db.products.delete(jp.id);
+            const pBatches = await db.batches.where('productId').equals(jp.id).toArray();
+            for (const b of pBatches) {
+              await db.batches.delete(b.id);
+            }
+          }
+        });
+        const [cleanProducts, cleanBatches] = await Promise.all([
+          db.products.toArray(),
+          db.batches.toArray(),
+        ]);
+        setProducts(cleanProducts);
+        setBatches(cleanBatches);
+      } else {
+        setProducts(allProducts);
+        setBatches(allBatches);
+      }
       setStockHistory(allHistory);
       setSales(allSales);
 
@@ -504,6 +535,17 @@ export const App: React.FC = () => {
           onImportComplete={handleBulkImport}
         />
       )}
+
+      
+      {/* Retail AI Copilot Floating Assistant */}
+      <RetailAiAssistant
+        products={products}
+        batches={batches}
+        sales={sales}
+        settings={settings}
+        onNavigateTab={setActiveTab}
+        onOpenPos={() => setIsPosOpen(true)}
+      />
 
       {/* Interactive Action Notifications */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
