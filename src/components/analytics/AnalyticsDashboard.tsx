@@ -10,7 +10,10 @@ import {
   Boxes,
   Download,
   CheckCircle2,
-  Receipt
+  Receipt,
+  Upload,
+  Barcode,
+  FileSpreadsheet
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -34,6 +37,8 @@ interface AnalyticsDashboardProps {
   products: Product[];
   batches: ProductBatch[];
   currency: string;
+  onOpenImportSoldSheet?: () => void;
+  onOpenScannerHub?: () => void;
 }
 
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
@@ -41,6 +46,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   products,
   batches,
   currency,
+  onOpenImportSoldSheet,
+  onOpenScannerHub,
 }) => {
   const { strings } = useLanguage();
   const [timeRange, setTimeRange] = useState<'today' | '7days' | 'month' | 'all'>('today');
@@ -216,6 +223,28 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
         {/* Action Controls & Time Filters */}
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {onOpenImportSoldSheet && (
+            <button
+              onClick={onOpenImportSoldSheet}
+              title="Drop or Import Excel/CSV Sheet of Sold Items"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 text-xs font-bold btn-3d-brand shadow-sm transition-all"
+            >
+              <Upload className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>{strings.analytics.importSoldSheet || 'Drop Sold Sheet (Excel/CSV)'}</span>
+            </button>
+          )}
+
+          {onOpenScannerHub && (
+            <button
+              onClick={onOpenScannerHub}
+              title="Connect Barcode Scanner and External Sales Record"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 btn-3d-secondary text-xs font-semibold shadow-sm transition-all"
+            >
+              <Barcode className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
+              <span>{strings.analytics.connectScanner || 'Connect Scanner & Sync'}</span>
+            </button>
+          )}
+
           <button
             onClick={handleExportSalesCsv}
             disabled={filteredSales.length === 0}

@@ -11,7 +11,8 @@ import {
   ShoppingBag, 
   Camera, 
   AlertTriangle,
-  ShieldAlert 
+  ShieldAlert,
+  FileSpreadsheet
 } from 'lucide-react';
 import type { Product, ProductBatch, SaleTransaction } from '../../types';
 import { BarcodeScannerModal } from '../common/BarcodeScannerModal';
@@ -25,6 +26,10 @@ interface QuickSaleModalProps {
   batches: ProductBatch[];
   currency: string;
   autoAttemptExpiredProductId?: string | null;
+  initialBarcode?: string | null;
+  onClearInitialBarcode?: () => void;
+  onOpenImportSoldSheet?: () => void;
+  onOpenScannerHub?: () => void;
   onProcessSale: (
     cart: { productId: string; quantity: number }[],
     paymentMethod: 'cash' | 'upi' | 'card' | 'credit',
@@ -39,6 +44,10 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
   batches,
   currency,
   autoAttemptExpiredProductId,
+  initialBarcode,
+  onClearInitialBarcode,
+  onOpenImportSoldSheet,
+  onOpenScannerHub,
   onProcessSale,
 }) => {
   const { strings } = useLanguage();
@@ -258,12 +267,42 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                 </p>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              {onOpenScannerHub && (
+                <button
+                  type="button"
+                  onClick={onOpenScannerHub}
+                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 transition-colors shadow-sm"
+                  title="Hardware Scanner Status & Hub"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <Barcode className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Scanner Ready</span>
+                </button>
+              )}
+
+              {onOpenImportSoldSheet && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenImportSoldSheet();
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition-colors shadow-sm"
+                  title="Drop or Import Excel/CSV Sheet of Sold Items"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="hidden sm:inline">Drop Sold Sheet</span>
+                </button>
+              )}
+
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {error && (

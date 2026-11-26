@@ -22,6 +22,9 @@ import { SettingsModal } from './components/settings/SettingsModal';
 import { StoreSafetyBanner } from './components/common/StoreSafetyBanner';
 import { StoreSetupModal } from './components/onboarding/StoreSetupModal';
 import { ImportSheetModal } from './components/common/ImportSheetModal';
+import { ImportSoldSheetModal } from './components/common/ImportSoldSheetModal';
+import { ScannerHardwareHubModal } from './components/common/ScannerHardwareHubModal';
+import { useHardwareScanner } from './hooks/useHardwareScanner';
 import { ToastContainer, ToastMessage } from './components/common/Toast';
 import { useLanguage } from './i18n/LanguageContext';
 import { RetailAiAssistant } from './components/ai/RetailAiAssistant';
@@ -54,8 +57,63 @@ export const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSetupModalOpen, setIsSetupModalOpen] = useState(false);
   const [isImportSheetOpen, setIsImportSheetOpen] = useState(false);
+  const [isImportSoldSheetOpen, setIsImportSoldSheetOpen] = useState(false);
+  const [isScannerHubOpen, setIsScannerHubOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [autoAttemptExpiredProductId, setAutoAttemptExpiredProductId] = useState<string | null>(null);
+  const [pendingScanBarcode, setPendingScanBarcode] = useState<string | null>(null);
+  const [autoOpenBillingOnScan, setAutoOpenBillingOnScan] = useState<boolean>(() => {
+    const saved = localStorage.getItem('retails_gm_auto_open_pos_on_scan');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  // Hardware USB/Bluetooth laser barcode scanner listener
+  useHardwareScanner({
+    enabled: true,
+    onScan: (scannedBarcode) => {
+      sound.playScannerBeep();
+      const matched = products.find(
+        (p) => p.barcode && p.barcode.toLowerCase() === scannedBarcode.toLowerCase()
+      );
+      if (matched) {
+        addToast(
+          'Scanner: Product Recognized',
+          `${matched.name} (${settings.currency}${matched.sellingPrice})`,
+          'success'
+        );
+        if (autoOpenBillingOnScan) {
+          setPendingScanBarcode(scannedBarcode);
+          setIsPosOpen(true);
+        }
+      } else {
+        addToast('Scanner: Barcode Detected', `Code: ${scannedBarcode} (Not in store catalog)`, 'info');
+      }
+    },
+  });
+
+  const handleToggleAutoOpenBilling = (enabled: boolean) => {
+    setAutoOpenBillingOnScan(enabled);
+    localStorage.setItem('retails_gm_auto_open_pos_on_scan', String(enabled));
+  };
+
+  const handleBulkSoldImport = async (
+    salesToRecord: Array<{
+      productId: string;
+      quantity: number;
+      sellingPrice?: number;
+      paymentMethod?: 'cash' | 'upi' | 'card' | 'credit';
+      customerName?: string;
+      timestamp?: string;
+    }>
+  ) => {
+    const result = await db.bulkRecordSales(salesToRecord);
+    await refreshData();
+    addToast(
+      'Sales Recorded Successfully',
+      `Recorded ${result.recordedCount} items from sheet. Revenue: ${settings.currency}${result.totalAmount.toFixed(0)}, Profit: +${settings.currency}${result.totalProfit.toFixed(0)}`,
+      'success'
+    );
+  };
 
   // Keyboard shortcut: Space or F2 opens POS register when not typing in an input
   useEffect(() => {
@@ -426,6 +484,7 @@ export const App: React.FC = () => {
         onOpenPos={() => setIsPosOpen(true)}
         onLoadDemoData={products.length === 0 ? handleLoadDemoData : undefined}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenScannerHub={() => setIsScannerHubOpen(true)}
         theme={settings.theme}
         onToggleTheme={handleToggleTheme}
         shopName={settings.shopName}
@@ -475,6 +534,8 @@ export const App: React.FC = () => {
             products={products}
             batches={batches}
             currency={settings.currency}
+            onOpenImportSoldSheet={() => setIsImportSoldSheetOpen(true)}
+            onOpenScannerHub={() => setIsScannerHubOpen(true)}
           />
         )}
       </main>
@@ -497,12 +558,17 @@ export const App: React.FC = () => {
           onClose={() => {
             setIsPosOpen(false);
             setAutoAttemptExpiredProductId(null);
+            setPendingScanBarcode(null);
           }}
           products={products}
           batches={batches}
           currency={settings.currency}
           onProcessSale={handleProcessSale}
           autoAttemptExpiredProductId={autoAttemptExpiredProductId}
+          initialBarcode={pendingScanBarcode}
+          onClearInitialBarcode={() => setPendingScanBarcode(null)}
+          onOpenImportSoldSheet={() => setIsImportSoldSheetOpen(true)}
+          onOpenScannerHub={() => setIsScannerHubOpen(true)}
         />
       )}
 
@@ -533,6 +599,34 @@ export const App: React.FC = () => {
           onClose={() => setIsImportSheetOpen(false)}
           currency={settings.currency}
           onImportComplete={handleBulkImport}
+        />
+      )}
+
+      {/* Spreadsheet / Excel Sold Products Import Modal */}
+      {isImportSoldSheetOpen && (
+        <ImportSoldSheetModal
+          isOpen={isImportSoldSheetOpen}
+          onClose={() => setIsImportSoldSheetOpen(false)}
+          products={products}
+          currency={settings.currency}
+          onImportComplete={handleBulkSoldImport}
+        />
+      )}
+
+      {/* Hardware Barcode Scanner & Sales Sync Hub */}
+      {isScannerHubOpen && (
+        <ScannerHardwareHubModal
+          isOpen={isScannerHubOpen}
+          onClose={() => setIsScannerHubOpen(false)}
+          products={products}
+          currency={settings.currency}
+          onOpenSoldSheetModal={() => setIsImportSoldSheetOpen(true)}
+          onOpenPosWithBarcode={(barcode) => {
+            setPendingScanBarcode(barcode);
+            setIsPosOpen(true);
+          }}
+          autoOpenBillingOnScan={autoOpenBillingOnScan}
+          onToggleAutoOpenBilling={handleToggleAutoOpenBilling}
         />
       )}
 

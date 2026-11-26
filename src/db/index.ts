@@ -426,6 +426,145 @@ export class RetailDatabase extends Dexie {
     const savedSale = await this.sales.where('receiptNumber').equals(receiptNumber).first();
     return savedSale!;
   }
+
+  /**
+   * Bulk record sales from an imported spreadsheet or external sales sync
+   */
+  async bulkRecordSales(
+    salesToRecord: Array<{
+      productId: string;
+      quantity: number;
+      sellingPrice?: number;
+      paymentMethod?: 'cash' | 'upi' | 'card' | 'credit';
+      customerName?: string;
+      timestamp?: string;
+    }>
+  ): Promise<{
+    recordedCount: number;
+    totalAmount: number;
+    totalProfit: number;
+    receiptNumber: string;
+  }> {
+    const now = new Date().toISOString();
+    const receiptNumber = `RGM-BULK-${Date.now().toString().slice(-6)}`;
+    const saleItems: SaleItem[] = [];
+    let totalAmount = 0;
+    let totalCost = 0;
+
+    await this.transaction('rw', this.products, this.batches, this.stockHistory, this.sales, async () => {
+      for (const item of salesToRecord) {
+        if (item.quantity <= 0) continue;
+        const product = await this.products.get(item.productId);
+        if (!product) continue;
+
+        const effectiveSellingPrice = item.sellingPrice && item.sellingPrice > 0 ? item.sellingPrice : product.sellingPrice;
+        const effectiveCostPrice = product.costPrice;
+
+        // Fetch batches FEFO
+        const batches = await this.batches
+          .where('productId')
+          .equals(item.productId)
+          .toArray();
+
+        // Valid non-expired batches first
+        const validBatches = batches
+          .filter((b) => b.quantity > 0 && b.status !== 'disposed')
+          .sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
+
+        let remainingToDeduct = item.quantity;
+
+        for (const batch of validBatches) {
+          if (remainingToDeduct <= 0) break;
+          const deductFromThisBatch = Math.min(batch.quantity, remainingToDeduct);
+          const newBatchQty = batch.quantity - deductFromThisBatch;
+          remainingToDeduct -= deductFromThisBatch;
+
+          const itemTotal = deductFromThisBatch * effectiveSellingPrice;
+          const itemCost = deductFromThisBatch * effectiveCostPrice;
+          const itemProfit = itemTotal - itemCost;
+
+          totalAmount += itemTotal;
+          totalCost += itemCost;
+
+          saleItems.push({
+            productId: product.id,
+            productName: product.name,
+            batchId: batch.id,
+            batchNumber: batch.batchNumber,
+            expiryDate: batch.expiryDate,
+            quantity: deductFromThisBatch,
+            unitPrice: effectiveSellingPrice,
+            costPrice: effectiveCostPrice,
+            totalPrice: itemTotal,
+            profit: itemProfit,
+          });
+
+          await this.batches.update(batch.id, { quantity: newBatchQty });
+        }
+
+        // If there were not enough batch quantities, still record the remainder against the product
+        if (remainingToDeduct > 0) {
+          const itemTotal = remainingToDeduct * effectiveSellingPrice;
+          const itemCost = remainingToDeduct * effectiveCostPrice;
+          const itemProfit = itemTotal - itemCost;
+          totalAmount += itemTotal;
+          totalCost += itemCost;
+          saleItems.push({
+            productId: product.id,
+            productName: product.name,
+            batchId: 'direct',
+            batchNumber: 'DIRECT-SALE',
+            expiryDate: new Date(Date.now() + 180 * 86400000).toISOString().split('T')[0],
+            quantity: remainingToDeduct,
+            unitPrice: effectiveSellingPrice,
+            costPrice: effectiveCostPrice,
+            totalPrice: itemTotal,
+            profit: itemProfit,
+          });
+        }
+
+        const newStock = Math.max(0, product.currentStock - item.quantity);
+        await this.products.update(product.id, {
+          currentStock: newStock,
+          updatedAt: now,
+        });
+
+        await this.stockHistory.put({
+          id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          productId: product.id,
+          productName: product.name,
+          type: 'sale',
+          quantityDelta: -item.quantity,
+          stockBefore: product.currentStock,
+          stockAfter: newStock,
+          reason: `Bulk sold sheet import (#${receiptNumber})`,
+          timestamp: item.timestamp || now,
+        });
+      }
+
+      const totalProfit = totalAmount - totalCost;
+      const transaction: SaleTransaction = {
+        id: `sale_${Date.now()}`,
+        receiptNumber,
+        items: saleItems,
+        totalAmount,
+        totalCost,
+        totalProfit,
+        paymentMethod: 'cash',
+        customerName: 'Bulk Sheet Import',
+        timestamp: now,
+      };
+
+      await this.sales.put(transaction);
+    });
+
+    return {
+      recordedCount: saleItems.length,
+      totalAmount,
+      totalProfit: totalAmount - totalCost,
+      receiptNumber,
+    };
+  }
 }
 
 export const db = new RetailDatabase();

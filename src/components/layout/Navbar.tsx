@@ -8,7 +8,8 @@ import {
   Settings, 
   Moon, 
   Sun, 
-  Sparkles 
+  Sparkles,
+  Barcode
 } from 'lucide-react';
 import type { ActiveTab } from '../../types';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -22,6 +23,7 @@ interface NavbarProps {
   onOpenPos: () => void;
   onLoadDemoData?: () => void;
   onOpenSettings: () => void;
+  onOpenScannerHub?: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   shopName: string;
@@ -36,6 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenPos,
   onLoadDemoData,
   onOpenSettings,
+  onOpenScannerHub,
   theme,
   onToggleTheme,
   shopName,
@@ -154,6 +157,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span className="hidden sm:inline whitespace-nowrap">Demo Store</span>
+                </button>
+              )}
+
+              {/* Hardware Barcode Scanner Status / Hub */}
+              {onOpenScannerHub && (
+                <button
+                  onClick={onOpenScannerHub}
+                  className="px-2.5 py-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-200 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-800 rounded-xl transition-all flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0"
+                  title="Connect Barcode Scanner and Sync Sales"
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <Barcode className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span className="hidden xl:inline whitespace-nowrap">Scanner Ready</span>
                 </button>
               )}
 
