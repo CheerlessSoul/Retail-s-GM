@@ -25,6 +25,7 @@ import { ImportSheetModal } from './components/common/ImportSheetModal';
 import { ImportSoldSheetModal } from './components/common/ImportSoldSheetModal';
 import { ScannerHardwareHubModal } from './components/common/ScannerHardwareHubModal';
 import { useHardwareScanner } from './hooks/useHardwareScanner';
+import { UserGuidePage } from './components/guide/UserGuidePage';
 import { ToastContainer, ToastMessage } from './components/common/Toast';
 import { useLanguage } from './i18n/LanguageContext';
 import { RetailAiAssistant } from './components/ai/RetailAiAssistant';
@@ -485,6 +486,7 @@ export const App: React.FC = () => {
         onLoadDemoData={products.length === 0 ? handleLoadDemoData : undefined}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenScannerHub={() => setIsScannerHubOpen(true)}
+        onOpenGuide={() => setActiveTab('guide')}
         theme={settings.theme}
         onToggleTheme={handleToggleTheme}
         shopName={settings.shopName}
@@ -538,6 +540,18 @@ export const App: React.FC = () => {
             onOpenScannerHub={() => setIsScannerHubOpen(true)}
           />
         )}
+
+        {activeTab === 'guide' && (
+          <UserGuidePage
+            onBack={() => setActiveTab('products')}
+            onOpenPos={() => setIsPosOpen(true)}
+            onOpenScannerHub={() => setIsScannerHubOpen(true)}
+            onOpenImportSoldSheet={() => setIsImportSoldSheetOpen(true)}
+            onOpenAddProduct={() => setIsAddProductOpen(true)}
+            onOpenImportCatalogSheet={() => setIsImportSheetOpen(true)}
+            currency={settings.currency}
+          />
+        )}
       </main>
 
       
@@ -580,6 +594,10 @@ export const App: React.FC = () => {
           settings={settings}
           onSaveSettings={handleSaveSettings}
           onThemeToggle={applyTheme}
+          onOpenGuide={() => {
+            setIsSettingsOpen(false);
+            setActiveTab('guide');
+          }}
         />
       )}
 

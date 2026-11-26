@@ -9,7 +9,8 @@ import {
   Moon, 
   Sun, 
   Sparkles,
-  Barcode
+  Barcode,
+  BookOpen
 } from 'lucide-react';
 import type { ActiveTab } from '../../types';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -24,6 +25,7 @@ interface NavbarProps {
   onLoadDemoData?: () => void;
   onOpenSettings: () => void;
   onOpenScannerHub?: () => void;
+  onOpenGuide?: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   shopName: string;
@@ -39,6 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLoadDemoData,
   onOpenSettings,
   onOpenScannerHub,
+  onOpenGuide,
   theme,
   onToggleTheme,
   shopName,
@@ -205,6 +208,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <Settings className="w-4 h-4" />
               </button>
+
+              {/* How to Use / Store Guide Button */}
+              {onOpenGuide && (
+                <button
+                  onClick={onOpenGuide}
+                  className={`p-1.5 rounded-xl transition-colors border shrink-0 ${
+                    activeTab === 'guide'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent hover:border-slate-200 dark:hover:border-slate-700'
+                  }`}
+                  title="How to Use Retail's GM & All Features Guide"
+                >
+                  <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -106,4 +106,4 @@ export interface OcrExtractedData {
   confidence: number;
 }
 
-export type ActiveTab = 'products' | 'expiry' | 'inventory' | 'analytics' | 'pos' | 'settings';
+export type ActiveTab = 'products' | 'expiry' | 'inventory' | 'analytics' | 'pos' | 'settings' | 'guide';

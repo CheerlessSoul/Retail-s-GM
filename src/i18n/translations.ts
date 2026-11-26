@@ -220,6 +220,9 @@ export const translations = {
     },
     settings: {
       title: 'Application Settings',
+      openGuideBtn: 'Open Store Guide',
+      guideSectionTitle: "How to Use Retail's GM & All Features",
+      guideSectionSubtitle: 'Step-by-step instructions on billing, expiry management, barcode scanning, and spreadsheets.',
       subtitle: 'Configure language, shop profile, night mode, alert rules, and data backups.',
       languageSection: 'Language / भाषा / மொழி / भाषा / ਭਾਸ਼ਾ / ဘာသာစကား',
       selectLanguagePrompt: 'Select your preferred application language:',
@@ -462,6 +465,9 @@ export const translations = {
     },
     settings: {
       title: 'दुकान की सेटिंग्स (Settings)',
+      openGuideBtn: 'दुकान गाइड खोलें (User Guide)',
+      guideSectionTitle: "ऐप चलाना सीखें (How to Use & All Features)",
+      guideSectionSubtitle: 'बिलिंग, एक्सपायरी सुरक्षा, बारकोड स्कैनर और एक्सेल शीट चलाने की पूरी जानकारी।',
       subtitle: 'भाषा, दुकान का नाम, डार्क मोड, अलर्ट और डेटा बैकअप सेट करें।',
       languageSection: 'भाषा चुनें (Select Language)',
       selectLanguagePrompt: 'दुकान के लिए पसंदीदा भाषा चुनें:',
@@ -704,6 +710,9 @@ export const translations = {
     },
     settings: {
       title: 'கடை அமைப்புகள் (Settings)',
+      openGuideBtn: 'பயன்பாட்டு கையேடு (Store Guide)',
+      guideSectionTitle: "Retail's GM எப்படி பயன்படுத்துவது மற்றும் அம்சங்கள்",
+      guideSectionSubtitle: 'பில்லிங், காலாவதி கட்டுப்பாடு, பார்கோடு ஸ்கேனர் மற்றும் எக்செல் தாள்கள் பற்றிய எளிய விளக்கம்.',
       subtitle: 'மொழி, கடை விவரங்கள், இரவு பயன்முறை மற்றும் காப்புப்பிரதி.',
       languageSection: 'மொழியைத் தேர்ந்தெடுக்கவும் (Language)',
       selectLanguagePrompt: 'கடைக்கான விருப்ப மொழியைத் தேர்வுசெய்யவும்:',
@@ -946,6 +955,9 @@ export const translations = {
     },
     settings: {
       title: 'दुकानाची सेटिंग्ज (Settings)',
+      openGuideBtn: 'वापरकर्ता मार्गदर्शक उघडा (User Guide)',
+      guideSectionTitle: "ॲप कसे वापरावे आणि सर्व वैशिष्ट्ये",
+      guideSectionSubtitle: 'बिलिंग, एक्सपायरी नियंत्रण, बारकोड स्कॅनर आणि एक्सेल शीट व्यवस्थापनाची सविस्तर माहिती.',
       subtitle: 'भाषा, दुकानाचे नाव, नाईट मोड, सूचना आणि डेटा बॅकअप.',
       languageSection: 'भाषा निवडा (Language)',
       selectLanguagePrompt: 'दुकानासाठी पसंतीची भाषा निवडा:',
@@ -1188,6 +1200,9 @@ export const translations = {
     },
     settings: {
       title: 'ਦੁਕਾਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ (Settings)',
+      openGuideBtn: 'ਦੁਕਾਨ ਗਾਈਡ ਖੋਲ੍ਹੋ (User Guide)',
+      guideSectionTitle: "ਐਪ ਚਲਾਉਣਾ ਸਿੱਖੋ (How to Use & All Features)",
+      guideSectionSubtitle: 'ਬਿਲਿੰਗ, ਐਕਸਪਾਇਰੀ ਸੁਰੱਖਿਆ, ਬਾਰਕੋਡ ਸਕੈਨਰ ਅਤੇ ਐਕਸਲ ਸ਼ੀਟਾਂ ਦੀ ਪੂਰੀ ਜਾਣਕਾਰੀ।',
       subtitle: 'ਭਾਸ਼ਾ, ਦੁਕਾਨ ਦਾ ਨਾਮ, ਨਾਈਟ ਮੋਡ, ਚਿਤਾਵਨੀਆਂ ਅਤੇ ਡਾਟਾ ਬੈਕਅੱਪ।',
       languageSection: 'ਭਾਸ਼ਾ ਚੁਣੋ (Language)',
       selectLanguagePrompt: 'ਦੁਕਾਨ ਲਈ ਆਪਣੀ ਪਸੰਦੀਦਾ ਭਾਸ਼ਾ ਚੁਣੋ:',
@@ -1430,6 +1445,9 @@ export const translations = {
     },
     settings: {
       title: 'ဆိုင် ဆက်တင်များ (Settings)',
+      openGuideBtn: 'လမ်းညွှန်စာအုပ် ဖွင့်ပါ (User Guide)',
+      guideSectionTitle: "Retail's GM အသုံးပြုပုံနှင့် လုပ်ဆောင်ချက်များ",
+      guideSectionSubtitle: 'ဘေလ်ထုတ်ခြင်း၊ သက်တမ်းကုန်ကာကွယ်ခြင်း၊ ဘားကုဒ်စကင်နာနှင့် စာရင်းဇယား အသုံးပြုပုံများ။',
       subtitle: 'ဘာသာစကား၊ ဆိုင်အမည်၊ အမှောင်မုဒ်၊ သတိပေးချက်များနှင့် ဒေတာသိမ်းဆည်းမှု။',
       languageSection: 'ဘာသာစကား ရွေးချယ်ပါ (Select Language)',
       selectLanguagePrompt: 'အသုံးပြုလိုသော ဘာသာစကားကို ရွေးချယ်ပါ:',
